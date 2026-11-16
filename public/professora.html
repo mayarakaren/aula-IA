@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Painel da professora · A IA adora colar</title>
+<style>
+  :root { --ink:#f4ecff; --bg2:#22123f; --card:#1d0f3a; --purple:#a56bff; --purple-deep:#6a2fd9; --pink:#ff6fae; --gold:#ffd166; --green:#4ee08a; --red:#ff6b7a; --line:#3a2360; }
+  * { box-sizing:border-box; }
+  html, body { margin:0; min-height:100%; }
+  body { font-family:'Segoe UI',system-ui,-apple-system,sans-serif; background:radial-gradient(ellipse at top right,#2a1550 0%,#150a28 60%) fixed; color:var(--ink); padding-bottom:84px; }
+  .shell { max-width:1060px; margin:0 auto; padding:18px 20px; min-height:calc(100vh - 84px); display:flex; flex-direction:column; justify-content:center; }
+  .topbar { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:12px; font-size:12px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; color:var(--purple); }
+  .badge { background:var(--card); border:1px solid var(--purple); border-radius:20px; padding:5px 13px; }
+  .status { border-color:var(--green); color:var(--green); } .status.off { border-color:var(--line); color:#9b86c9; } .status.bad { border-color:var(--red); color:var(--red); }
+  .panel { position:relative; background:linear-gradient(rgba(20,8,44,.58),rgba(20,8,44,.74)),url('/img/fundo.jpg') center/cover #1d0f3a; border:1px solid var(--line); border-radius:22px; overflow-y:auto; overflow-x:hidden; width:100%; aspect-ratio:16/9; box-shadow:0 20px 50px rgba(0,0,0,.4); display:flex; align-items:center; justify-content:center; }
+  @media (max-width:760px){ .panel{ aspect-ratio:auto; min-height:560px; } }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(14px);} to{opacity:1;transform:translateY(0);} }
+  @keyframes floaty { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-10px);} }
+  @keyframes pop { 0%{transform:scale(.8);opacity:0;} 100%{transform:scale(1);opacity:1;} }
+  @keyframes glow { 0%,100%{box-shadow:0 0 26px rgba(185,138,255,.6);} 50%{box-shadow:0 0 52px rgba(255,122,184,.85);} }
+  .page { width:100%; height:100%; animation:fadeUp .45s cubic-bezier(.21,1.02,.73,1); display:flex; align-items:center; justify-content:center; position:relative; }
+  .hero { display:flex; width:100%; align-items:center; justify-content:center; gap:34px; padding:30px 44px; max-width:960px; position:relative; z-index:1; }
+  .hero-text { flex:0 1 500px; display:flex; flex-direction:column; } .hero-text > * + * { margin-top:14px; }
+  .hero-img { flex:0 1 290px; display:flex; align-items:center; justify-content:center; background:radial-gradient(circle,rgba(165,107,255,.2),transparent 70%); padding:14px; }
+  .hero-img img { max-width:100%; max-height:300px; object-fit:contain; animation:floaty 3.2s ease-in-out infinite; filter:drop-shadow(0 18px 24px rgba(0,0,0,.5)); }
+  .center-card { width:100%; max-width:820px; padding:26px 40px; text-align:center; display:flex; flex-direction:column; align-items:center; position:relative; z-index:1; }
+  .center-card > * + * { margin-top:13px; }
+  @media (max-width:760px){ .hero{flex-direction:column; padding:24px 18px;} .hero-img img{max-height:150px;} .center-card{padding:22px 16px;} }
+  .eyebrow { font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--purple); font-weight:800; }
+  h1 { font-size:33px; margin:0; line-height:1.15; } h1 .accent, .accent { color:var(--pink); }
+  h2 { font-size:24px; margin:0; } h3 { margin:0; font-size:15px; color:var(--gold); }
+  p { line-height:1.55; font-size:16.5px; color:#dccdf8; margin:0; }
+  .muted { color:#a98fd6; font-size:13px; }
+  .q { font-size:19px; font-weight:700; color:var(--gold); background:rgba(255,209,102,.08); border-left:3px solid var(--gold); padding:12px 16px; border-radius:6px; text-align:left; }
+  .name-tag { font-weight:700; color:var(--purple); }
+  .btn-cta { background:linear-gradient(135deg,var(--purple-deep),var(--pink)); color:#fff; border:none; border-radius:14px; padding:14px 28px; font-size:17px; font-weight:800; cursor:pointer; box-shadow:0 10px 24px rgba(165,107,255,.35); }
+  .link-btn { display:inline-block; background:var(--bg2); color:#e9dcff; border:2px solid var(--purple); border-radius:12px; padding:10px 16px; font-weight:700; text-decoration:none; cursor:pointer; font-size:14.5px; }
+  .live { color:var(--green); font-weight:800; font-size:17px; margin-bottom:8px; } .tchip { margin-left:8px; color:var(--gold); font-weight:900; }
+  .btns2 { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; } .hero-text .btns2 { justify-content:flex-start; }
+  .joinbox { background:var(--bg2); border:1px dashed var(--purple); border-radius:12px; padding:10px 14px; font-size:15px; text-align:left; } .joinbox b { color:var(--gold); font-size:18px; word-break:break-all; }
+  .bloom { display:flex; flex-direction:column; gap:8px; text-align:left; }
+  .bl { display:flex; gap:10px; align-items:flex-start; background:rgba(14,6,32,.55); border:1px solid var(--line); border-radius:12px; padding:9px 12px; font-size:15px; color:#e2d3fb; }
+  .bl b.lv { flex:none; min-width:84px; border-radius:20px; padding:3px 10px; font-size:12px; text-align:center; letter-spacing:.04em; background:#3a2360; color:#e9dcff; }
+  .bl.meta { border-color:var(--gold); } .bl.meta b.lv { background:linear-gradient(135deg,var(--gold),#ffb347); color:#2b1a00; }
+  .bigq { width:150px; height:150px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:96px; font-weight:900; background:radial-gradient(circle at 35% 30%,#8a52ff,#3b1a80); border:5px solid #e6d4ff; animation:glow 2.4s ease-in-out infinite; }
+  .foto { position:relative; aspect-ratio:4/3; border-radius:12px; background-size:cover; background-position:center; overflow:hidden; border:2px solid rgba(255,255,255,.15); }
+  .foto img { position:absolute; left:50%; bottom:7%; transform:translateX(-50%); height:70%; max-width:85%; object-fit:contain; filter:drop-shadow(0 6px 6px rgba(0,0,0,.35)); }
+  .tag { position:absolute; top:6px; left:6px; font-size:11.5px; font-weight:900; padding:3px 8px; border-radius:10px; color:#fff; background:rgba(14,6,32,.82); }
+  .strip { display:grid; grid-template-columns:repeat(3,170px); gap:12px; justify-content:center; }
+  .strip.four { grid-template-columns:repeat(4,150px); }
+  @media (max-width:760px){ .strip, .strip.four { grid-template-columns:repeat(2,1fr); width:100%; } }
+  .cycle { display:flex; align-items:stretch; gap:8px; width:100%; }
+  .cs { flex:1; background:rgba(14,6,32,.7); border:1px solid var(--line); border-radius:14px; padding:12px 10px; font-size:13.5px; color:#e2d3fb; } .cs b { display:block; color:#fff; font-size:15px; margin:4px 0; } .cs .ic { font-size:26px; }
+  .cs.hl { border-color:var(--pink); box-shadow:0 0 14px rgba(255,111,174,.35); }
+  .arr { align-self:center; color:var(--pink); font-size:24px; font-weight:900; }
+  .two { display:grid; grid-template-columns:1fr 1fr; gap:14px; width:100%; text-align:left; }
+  .box { background:rgba(14,6,32,.6); border:1px solid var(--line); border-radius:14px; padding:12px 14px; } .box > * + * { margin-top:6px; }
+  .regra { font-family:ui-monospace,Consolas,monospace; color:var(--gold); font-size:14px; }
+  .optrow { display:flex; gap:12px; justify-content:center; } .optrow div { border-radius:16px; padding:14px 18px; font-weight:900; color:#fff; } .o0{background:linear-gradient(160deg,#4ee08a,#1f9e5c);} .o1{background:linear-gradient(160deg,#ff9f43,#d4541c);}
+  .rank-wrap { display:flex; gap:28px; width:100%; max-width:920px; padding:26px 40px; align-items:stretch; position:relative; z-index:1; }
+  .rank-col { flex:1; min-width:0; } .rank-col h2 { margin-bottom:10px; }
+  .rrow { display:flex; align-items:center; gap:10px; margin:8px 0; animation:pop .4s backwards; }
+  .rrow .pos { width:34px; font-size:22px; text-align:center; } .rrow .nick { width:140px; font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .rrow .bar { flex:1; background:var(--bg2); border-radius:8px; overflow:hidden; height:22px; } .rrow .bar i { display:block; height:100%; background:linear-gradient(90deg,var(--purple-deep),var(--pink)); border-radius:8px; }
+  .rrow .pts { width:64px; text-align:right; font-weight:800; color:var(--gold); }
+  .pbox { background:var(--bg2); border:1px solid var(--line); border-radius:12px; padding:11px 14px; margin-bottom:10px; font-size:14px; } .pbox b { color:var(--gold); }
+  .mbar { display:grid; grid-template-columns:90px 1fr 34px; gap:8px; align-items:center; margin:4px 0; font-size:13px; } .mbar .t { background:#150a28; border-radius:6px; height:12px; overflow:hidden; } .mbar .t i { display:block; height:100%; background:var(--gold); }
+  .mural { width:100%; max-width:980px; padding:20px 28px; position:relative; z-index:1; align-self:stretch; display:flex; flex-direction:column; }
+  .mural-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:12px; }
+  @media (max-width:760px){ .mural-grid { grid-template-columns:1fr; } .rank-wrap{flex-direction:column; padding:20px 16px;} .two{grid-template-columns:1fr;} .cycle{flex-direction:column;} .arr{transform:rotate(90deg);} }
+  .note { background:rgba(26,12,52,.9); border:1px solid var(--line); border-radius:14px; padding:10px; animation:pop .35s backwards; } .note > * + * { margin-top:7px; }
+  .note .ex { display:grid; grid-template-columns:1fr 1fr; gap:6px; } .note .who { font-weight:800; font-size:13px; color:#e9dcff; } .note .fr { font-size:13px; color:#dccdf8; font-style:italic; }
+  .pill { display:inline-block; font-size:11px; font-weight:800; border-radius:10px; padding:2px 8px; margin-right:4px; } .pill.y { background:rgba(78,224,138,.18); color:var(--green); } .pill.n { background:rgba(255,107,122,.15); color:var(--red); }
+  .pk { position:absolute; pointer-events:none; filter:drop-shadow(0 8px 12px rgba(8,2,24,.55)); animation:floaty 4s ease-in-out infinite; z-index:0; }
+  .pk.l { left:16px; bottom:10px; height:80px; } .pk.r { right:16px; bottom:10px; height:88px; animation-delay:.7s; }
+  .navbar { position:fixed; bottom:0; left:0; right:0; z-index:50; background:#140a28; border-top:1px solid var(--line); display:flex; justify-content:space-between; align-items:center; padding:12px 22px calc(12px + env(safe-area-inset-bottom,0px)); gap:10px; }
+  .nav-btn { background:var(--bg2); color:var(--purple); border:1px solid var(--purple); border-radius:10px; padding:11px 20px; font-weight:700; font-size:14px; cursor:pointer; }
+  .nav-btn:disabled { opacity:.3; cursor:default; } .nav-btn.primary { background:linear-gradient(135deg,var(--purple-deep),var(--pink)); color:#fff; border:none; }
+  .dot { font-size:12px; color:#9b86c9; font-weight:700; }
+  .menu { position:fixed; bottom:70px; left:50%; transform:translateX(-50%); background:var(--card); border:1px solid var(--purple); border-radius:14px; padding:12px; display:none; flex-direction:column; gap:8px; z-index:60; min-width:260px; } .menu.open { display:flex; }
+  .overlay { position:fixed; inset:0; background:#150a28; z-index:100; display:flex; align-items:center; justify-content:center; } .overlay .box2 { width:92%; max-width:360px; text-align:center; } .overlay .box2 > * + * { margin-top:14px; }
+  .input { width:100%; padding:13px 15px; border-radius:12px; border:2px solid var(--line); background:var(--bg2); color:var(--ink); font-size:16px; }
+  .err { color:var(--red); font-size:14px; min-height:18px; }
+</style>
+</head>
+<body>
+<div class="overlay" id="login"><div class="box2">
+  <h2>🔐 Painel da professora</h2>
+  <input class="input" id="pw" type="password" placeholder="Senha" autocomplete="current-password">
+  <div class="err" id="loginErr"></div>
+  <button class="btn-cta" id="loginBtn">Entrar</button>
+</div></div>
+
+<div class="shell">
+  <div class="topbar">
+    <span class="badge">Educação em Computação • Unesp • 2026</span>
+    <span class="badge status off" id="statusChip">conectando…</span>
+    <span class="badge" id="bloomBadge">Bloom: —</span>
+  </div>
+  <div class="panel" id="app"></div>
+</div>
+<div class="menu" id="menu">
+  <button class="link-btn" onclick="closeStage()">⏹ Encerrar etapa agora</button>
+  <button class="link-btn" style="border-color:var(--red);color:var(--red)" onclick="resetAula()">🗑 Reiniciar aula (apaga jogadores)</button>
+</div>
+<div class="navbar">
+  <button class="nav-btn" id="backBtn" onclick="navBack()">← Voltar</button>
+  <span class="dot" id="dot">1/9</span>
+  <button class="nav-btn" onclick="document.getElementById('menu').classList.toggle('open')">⚙</button>
+  <button class="nav-btn primary" id="nextBtn" onclick="navNext()">Avançar →</button>
+</div>
+
+<script>
+const IMG = (n) => '/img/' + n;
+const app = document.getElementById('app');
+let PW = sessionStorage.getItem('aula_ia_pw') || '';
+let status = null, idx = 0, renderToken = 0, clockOffset = 0, muralTimer = null;
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const STAGE_NAME = { lobby: 'Sala de espera', misterio: 'Mistério', pesquisa: 'Pesquisa', treino: 'Treinador', colou: 'Aprendeu ou colou?', conserte: 'Conserte', closed: 'Etapa encerrada', final: 'Finalização' };
+const TIPO_E = { 'Fogo': '🔥', 'Água': '💧', 'Planta': '🌿' };
+const foto = (pk, fundo, tag = '') => `<div class="foto" style="background-image:url('${IMG('bg-' + fundo + '.jpg')}')"><img src="${IMG('pk-' + pk + '.png')}" alt="">${tag}</div>`;
+const decor = (l, r) => `<img class="pk l" src="${IMG('deco-' + l + '.png')}" alt=""><img class="pk r" src="${IMG('deco-' + r + '.png')}" alt="">`;
+
+async function H(action, extra = {}) {
+  const r = await fetch('/api/host', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password: PW, action, ...extra }) });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(j.error || 'erro');
+  return j;
+}
+async function pollStatus() {
+  const chip = document.getElementById('statusChip');
+  try {
+    status = await H('board', { top: 1 });
+    clockOffset = (status.serverNow || Date.now()) - Date.now();
+    const active = ['misterio', 'pesquisa', 'treino', 'colou', 'conserte'].includes(status.stage);
+    chip.className = 'badge status' + (active ? '' : ' off');
+    chip.textContent = `${active ? '🔓 ' : ''}${STAGE_NAME[status.stage] || status.stage} · 👥 ${status.count}` + (active ? ` · ✅ ${status.doneNow}/${status.count}` : '');
+    paintUnlock(); const jc = document.getElementById('joinCount'); if (jc) jc.textContent = status.count;
+  } catch (e) { chip.className = 'badge status bad'; chip.textContent = '⚠ ' + e.message; }
+}
+function tickTimer() {
+  const c = document.getElementById('tchip'); if (!c || !status || !status.deadline) return;
+  const left = Math.max(0, status.deadline - (Date.now() + clockOffset)); const t = Math.ceil(left / 1000);
+  c.textContent = left > 0 ? '⏱ ' + Math.floor(t / 60) + ':' + String(t % 60).padStart(2, '0') : '⏱ tempo esgotado';
+}
+setInterval(tickTimer, 500);
+function paintUnlock() {
+  const z = document.querySelector('.unlock'); if (!z || !status) return;
+  if (status.stage === z.dataset.stage) {
+    z.innerHTML = `<div class="live">✅ Liberado: ${status.doneNow}/${status.count} concluíram${status.deadline ? '<span class="tchip" id="tchip"></span>' : ''}</div><div class="btns2">${status.deadline ? '<button class="link-btn" onclick="extendStage()">+30s</button>' : ''}<button class="link-btn" onclick="closeStage()">Encerrar etapa</button></div>`;
+    tickTimer();
+  } else if (!z.querySelector('button.btn-cta')) z.innerHTML = `<button class="btn-cta" onclick="unlock('${z.dataset.stage}')">🔓 ${z.dataset.label}</button>`;
+}
+const unlockZone = (stage, label) => `<div class="unlock" data-stage="${stage}" data-label="${label}"><button class="btn-cta" onclick="unlock('${stage}')">🔓 ${label}</button></div>`;
+async function unlock(stage) { try { await H('setStage', { stage }); await pollStatus(); } catch (e) { alert(e.message); } }
+async function extendStage() { try { await H('extend', { ms: 30000 }); await pollStatus(); } catch (e) { alert(e.message); } }
+async function closeStage() { document.getElementById('menu').classList.remove('open'); try { await H('setStage', { stage: 'closed' }); await pollStatus(); } catch (e) { alert(e.message); } }
+async function resetAula() {
+  document.getElementById('menu').classList.remove('open');
+  if (!confirm('Apagar todos os jogadores e voltar para a sala de espera?')) return;
+  try { await H('reset'); await pollStatus(); } catch (e) { alert(e.message); }
+}
+
+// ================== PÁGINAS ==================
+const pages = [
+  { num: 1, bloom: '—', render: pAbertura },
+  { num: 2, bloom: 'meta: Analisar', render: pObjetivos },
+  { num: 3, bloom: 'Analisar', render: pIntroMisterio },
+  { num: null, bloom: 'Analisar', render: () => pRanking('Ranking: Mistério', 'misterio', 'closed') },
+  { num: 4, bloom: 'Entender', render: pExplicacao, closeOnEnter: true },
+  { num: 5, bloom: 'Entender', render: pIntroPesquisa },
+  { num: 6, bloom: 'Aplicar', render: pIntroTreino, closeOnEnter: true },
+  { num: null, bloom: 'Aplicar', render: () => pRanking('Ranking: Treinador', 'treino', 'closed') },
+  { num: 7, bloom: 'Analisar', render: pIntroColou },
+  { num: null, bloom: 'Analisar', render: () => pRanking('Ranking: Aprendeu ou colou?', null, 'closed') },
+  { num: 8, bloom: 'Criar', render: pIntroConserte },
+  { num: null, bloom: 'Criar', render: pMural },
+  { num: null, bloom: 'Concluído ✓', render: () => pRanking('🏆 Ranking final', null, 'final') },
+  { num: 9, bloom: 'Concluído ✓', render: pFinal },
+];
+function render() {
+  const p = pages[idx];
+  if (muralTimer) { clearInterval(muralTimer); muralTimer = null; }
+  document.getElementById('bloomBadge').textContent = 'Bloom: ' + p.bloom;
+  document.getElementById('dot').textContent = p.num ? p.num + '/9' : '📊 painel';
+  document.getElementById('backBtn').disabled = idx === 0;
+  document.getElementById('nextBtn').style.visibility = idx === pages.length - 1 ? 'hidden' : 'visible';
+  renderToken++; p.render(); paintUnlock();
+  const jc = document.getElementById('joinCount'); if (jc && status) jc.textContent = status.count;
+  if (p.closeOnEnter && status && ['misterio', 'pesquisa', 'treino', 'colou', 'conserte'].includes(status.stage)) H('setStage', { stage: 'closed' }).then(pollStatus).catch(() => {});
+}
+function navBack() { if (idx > 0) { idx--; render(); } }
+function navNext() { if (idx < pages.length - 1) { idx++; render(); } }
+document.addEventListener('keydown', (e) => { if (document.getElementById('login').style.display !== 'none' || e.target.tagName === 'INPUT') return; if (e.key === 'ArrowRight') navNext(); if (e.key === 'ArrowLeft') navBack(); });
+const show = (html) => { app.innerHTML = `<div class="page">${html}</div>`; };
+
+function pAbertura() {
+  show(`<div class="hero"><div class="hero-text">
+      <div class="eyebrow">Da API à IA</div>
+      <h1>Na aula passada vocês <span class="accent">pediram</span> dados. Hoje esses dados vão <span class="accent">ensinar</span> uma IA.</h1>
+      <p>Lembram? Vocês fizeram um <b>pedido</b> à PokéAPI e ela devolveu uma <b>resposta</b> em JSON. É assim que muitas IAs ganham os exemplos com que aprendem.</p>
+      <div class="q">🤖 Mas será que a IA aprende o que a gente quer?</div>
+      <span class="muted">Apresentado por <span class="name-tag">Mayara Karen M. Pereira</span></span>
+    </div><div class="hero-img"><img src="${IMG('gengar.png')}" alt=""></div></div>`);
+}
+function pObjetivos() {
+  show(`<div class="hero"><div class="hero-text">
+      <div class="eyebrow">Objetivos da aula · Taxonomia de Bloom revisada</div>
+      <h2>Ao final, você será capaz de:</h2>
+      <div class="bloom">
+        <div class="bl"><b class="lv">ENTENDER</b><span>Explicar como uma IA aprende a classificar imagens a partir de exemplos.</span></div>
+        <div class="bl meta"><b class="lv">ANALISAR</b><span><b>Meta:</b> investigar por que uma IA erra e identificar o que ela está realmente olhando.</span></div>
+        <div class="bl"><b class="lv">CRIAR</b><span>Propor exemplos de treino que ajudem a IA a aprender do jeito certo.</span></div>
+      </div>
+      <div class="joinbox">Entrem em: <b>${location.origin}</b><br><span class="muted">👥 <span id="joinCount">0</span> conectados</span></div>
+    </div><div class="hero-img"><img src="${IMG('mewtwo.png')}" alt=""></div></div>`);
+}
+function pIntroMisterio() {
+  show(`<div class="center-card">
+      <div class="eyebrow">Atividade 1 de 6 · 3 minutos</div>
+      <h1>A Pokédex que <span class="accent">errou</span></h1>
+      <p>Esta Pokédex usa IA pra dizer o <b>tipo</b> do Pokémon pela foto. Ela acerta… e erra de um jeito estranho. Confiram na ficha da PokéAPI e descubram: <b>o que ela está olhando?</b></p>
+      <div class="strip">${foto('charmander', 'vulcao', '<span class="tag">🤖 🔥 Fogo</span>')}${foto('magikarp', 'mar', '<span class="tag">🤖 🔥 Fogo</span>')}${foto('squirtle', 'grama', '<span class="tag">🤖 🌿 Planta</span>')}</div>
+      ${unlockZone('misterio', 'Liberar o Mistério')}
+    </div>`);
+}
+function pExplicacao() {
+  show(`<div class="center-card" style="max-width:900px">
+      <div class="eyebrow">Atividade 2 de 6 · o mistério revelado</div>
+      <h1>A IA adora <span class="accent">colar</span></h1>
+      <div class="cycle">
+        <div class="cs"><div class="ic">📨</div><b>1 · Dados</b>a API entrega fotos e rótulos (o tipo)</div><div class="arr">→</div>
+        <div class="cs"><div class="ic">🧠</div><b>2 · Treino</b>a IA procura o padrão <b>mais fácil</b> que separa os exemplos</div><div class="arr">→</div>
+        <div class="cs hl"><div class="ic">📝</div><b>3 · Atalho</b>se todo Fogo era laranja e estava no vulcão, ela aprende <b>"laranja + vulcão = Fogo"</b></div><div class="arr">→</div>
+        <div class="cs"><div class="ic">💥</div><b>4 · Erro</b>Magikarp laranja vira Fogo; Charmander no mar vira Água</div>
+      </div>
+      <div class="two">
+        <div class="box"><h3>🐄 No artigo (Nature Machine Intelligence, 2020)</h3><p style="font-size:15px">Uma IA reconhecia vacas… só na <b>grama</b>. Vaca na praia? Errava. Ela aprendeu a paisagem, não a vaca.</p></div>
+        <div class="box"><h3>🎯 O nome disso</h3><p style="font-size:15px"><b>Aprendizado por atalho</b> (<i>shortcut learning</i>): acertar pelos motivos errados, como quem decora a prova sem entender.</p></div>
+      </div>
+    </div>`);
+}
+function pIntroPesquisa() {
+  show(`<div class="center-card">
+      <div class="eyebrow">Atividade 3 de 6 · 3 minutos</div>
+      <h2>Pesquisa: o que a ciência diz?</h2>
+      <div class="box" style="text-align:left;max-width:640px"><p style="font-size:15px"><b>Geirhos et al. (2020).</b> <i>Shortcut learning in deep neural networks.</i> Nature Machine Intelligence, 2(11), 665–673.</p><p class="muted">Revista com JCR · leitura pelo link aberto do arXiv · resumo + Figura 1</p></div>
+      <div class="box" style="text-align:left;max-width:640px"><p style="font-size:15px">1. A IA das vacas errava fora de qual paisagem?<br>2. A IA do raio-X olhava o quê, em vez do pulmão?<br>3. Com quem o artigo compara a IA que "cola"?</p></div>
+      ${unlockZone('pesquisa', 'Liberar a Pesquisa')}
+    </div>${decor('bulbasaur', 'squirtle')}`);
+}
+function pIntroTreino() {
+  show(`<div class="center-card">
+      <div class="eyebrow">Atividade 4 de 6 · jogo · 3 minutos</div>
+      <h1>Treinador da <span class="accent">Pokédex</span></h1>
+      <p>Cada um escolhe <b>6 fotos</b> pra treinar a IA. Depois ela faz uma prova com <b>4 fotos que nunca viu</b>. Se os exemplos deixarem um atalho, ela cola… e erra.</p>
+      <div class="strip four">${foto('krabby', 'grama', '<span class="tag">prova</span>')}${foto('squirtle', 'vulcao', '<span class="tag">prova</span>')}${foto('charmander', 'mar', '<span class="tag">prova</span>')}${foto('oddish', 'mar', '<span class="tag">prova</span>')}</div>
+      ${unlockZone('treino', 'Liberar o Treinador')}
+    </div>`);
+}
+function pIntroColou() {
+  show(`<div class="center-card">
+      <div class="eyebrow">Atividade 5 de 6 · 10 segundos por situação</div>
+      <h1>Aprendeu ou <span class="accent">colou</span>?</h1>
+      <p>Situações com Pokémon e com os casos do artigo. A IA aprendeu de verdade ou usou um atalho? A última vale dobrado!</p>
+      <div class="optrow"><div class="o0">🧠 Aprendeu de verdade</div><div class="o1">📝 Colou (atalho)</div></div>
+      ${unlockZone('colou', 'Liberar o jogo')}
+    </div>${decor('greninja', 'gardevoir')}`);
+}
+function pIntroConserte() {
+  show(`<div class="center-card">
+      <div class="eyebrow">Atividade 6 de 6 · 2 min e meio</div>
+      <h1>Conserte a <span class="accent">Pokédex</span></h1>
+      <p>A Pokédex original só viu <b>Fogo laranja no vulcão</b>, <b>Água azul no mar</b> e <b>Planta verde na grama</b>. Cada um cria <b>2 fotos novas</b> pro treino que quebrem os atalhos, e explica em uma frase.</p>
+      <p class="muted">As ideias aparecem no mural da turma (próxima tela).</p>
+      ${unlockZone('conserte', 'Liberar o Conserte')}
+    </div>${decor('lucario', 'charizard')}`);
+}
+function pMural() {
+  const token = renderToken;
+  show(`<div class="mural" style="text-align:center"><div class="eyebrow">📌 Mural da turma · atualiza sozinho</div><h2>Como vocês consertaram a Pokédex</h2><div id="unlockMural">${unlockZone('conserte', 'Liberar o Conserte')}</div><div class="mural-grid" id="mg"><p class="muted">Esperando as primeiras ideias…</p></div></div>`);
+  const load = async () => {
+    try {
+      const b = await H('board', { top: 1 }); if (token !== renderToken) return;
+      const g = document.getElementById('mg'); if (!g) return;
+      if (!b.mural.length) return;
+      g.innerHTML = b.mural.map((m, i) => `<div class="note" style="animation-delay:${Math.min(i, 8) * 60}ms">
+        <div class="who">✏️ ${esc(m.nick)}</div>
+        <div class="ex">${m.ex.map((e) => foto(e.pk, e.fundo, `<span class="tag">${TIPO_E[e.tipo]} ${esc(e.tipo)}</span>`)).join('')}</div>
+        <div><span class="pill ${m.quebra.cor ? 'y' : 'n'}">${m.quebra.cor ? '✓' : '✗'} cor</span><span class="pill ${m.quebra.fundo ? 'y' : 'n'}">${m.quebra.fundo ? '✓' : '✗'} fundo</span></div>
+        ${m.frase ? `<div class="fr">"${esc(m.frase)}"</div>` : ''}</div>`).join('');
+    } catch {}
+  };
+  load(); muralTimer = setInterval(load, 3500);
+}
+function pFinal() {
+  show(`<div class="hero"><div class="hero-text">
+      <div class="eyebrow">Fechando as duas aulas</div>
+      <h1>A API traz os dados. A IA aprende com eles. <span class="accent">Dado ruim gera IA que cola.</span></h1>
+      <p>Da próxima vez que uma IA acertar, pergunte: <b>ela aprendeu… ou colou?</b></p>
+      <p class="muted">Referência: Geirhos, R. et al. (2020). Shortcut learning in deep neural networks. <i>Nature Machine Intelligence</i>, 2, 665–673.</p>
+      <span class="muted">Obrigada! <span class="name-tag">Mayara Karen M. Pereira</span></span>
+    </div><div class="hero-img"><img src="${IMG('espeon.png')}" alt=""></div></div>`);
+}
+
+// ---------- rankings + painéis ----------
+async function pRanking(title, painel, stageAfter) {
+  const token = renderToken;
+  show(`<div class="center-card"><h2>${title}</h2><p class="muted">carregando…</p></div>`);
+  try {
+    await H('setStage', { stage: stageAfter }); await sleep(900);
+    const b = await H('board', { top: 5 }); if (token !== renderToken) return;
+    await pollStatus();
+    const max = Math.max(1, ...b.top.map((x) => x.total)); const md = ['🥇', '🥈', '🥉', '4º', '5º'];
+    const rows = b.top.length ? b.top.map((x, i) => `<div class="rrow" style="animation-delay:${i * 90}ms"><div class="pos">${md[i]}</div><div class="nick">${esc(x.nick)}</div><div class="bar"><i style="width:${Math.max(6, x.total / max * 100)}%"></i></div><div class="pts">${x.total}</div></div>`).join('') : '<p class="muted">Ninguém pontuou ainda.</p>';
+    let side = '';
+    if (painel === 'misterio') {
+      const m = b.misterio; const pm = Math.max(1, ...Object.values(m.pistaCount));
+      const lab = { forma: '🔺 forma', cor: '🎨 cor', fundo: '🏞️ fundo', tamanho: '📏 tamanho' };
+      side = `<div class="rank-col"><h2>Painel da turma</h2>
+        <div class="pbox">🕵️ Enviaram: <b>${m.enviaram}</b> de ${b.count} · julgaram certo, em média, <b>${m.marcasMedia}/8</b> fotos</div>
+        <div class="pbox">🎯 Acharam "cor <b>e</b> fundo": <b>${m.completas}</b></div>
+        <div class="pbox">O que a turma achou que a IA olhava:${Object.entries(m.pistaCount).map(([k, v]) => `<div class="mbar"><span>${lab[k] || k}</span><div class="t"><i style="width:${v / pm * 100}%"></i></div><b>${v}</b></div>`).join('')}</div></div>`;
+    } else if (painel === 'treino') {
+      const t = b.treino;
+      side = `<div class="rank-col"><h2>Painel da turma</h2>
+        <div class="pbox">🎓 Treinaram: <b>${t.jogaram}</b> de ${b.count}</div>
+        <div class="pbox">🎉 Fizeram a IA tirar <b>4/4</b>: <b>${t.perfeitos}</b></div>
+        <div class="pbox">🔁 Tentativas, em média: <b>${t.tentativasMedia}</b></div>
+        <div class="pbox">💡 O segredo: colocar <b>contraexemplos</b>, como um Pokémon laranja que não é de Fogo, ou um de Água na grama.</div></div>`;
+    }
+    show(`<div class="rank-wrap"><div class="rank-col"><h2>${title}</h2>${rows}<p class="muted" style="margin-top:8px">👥 ${b.count} participantes</p></div>${side}</div>` + decor('pikachu', 'charizard'));
+  } catch (e) { show(`<div class="center-card"><h2>Ops</h2><p style="color:var(--red)">${esc(e.message)}</p></div>`); }
+}
+
+// ---------- login ----------
+async function tryLogin() {
+  try { await H('board', { top: 1 }); document.getElementById('login').style.display = 'none'; sessionStorage.setItem('aula_ia_pw', PW); await pollStatus(); render(); setInterval(pollStatus, 3000); }
+  catch (e) { document.getElementById('loginErr').textContent = e.message; }
+}
+document.getElementById('loginBtn').onclick = () => { PW = document.getElementById('pw').value; tryLogin(); };
+document.getElementById('pw').onkeydown = (e) => { if (e.key === 'Enter') document.getElementById('loginBtn').click(); };
+if (PW) tryLogin();
+</script>
+</body>
+</html>
