@@ -96,6 +96,10 @@
   .overlay { position:fixed; inset:0; background:linear-gradient(rgba(18,8,38,.7),rgba(18,8,38,.8)),url('/img/fundo.jpg') center/cover #150a28; z-index:100; display:flex; align-items:center; justify-content:center; } .overlay .box2 { width:92%; max-width:360px; text-align:center; } .overlay .box2 > * + * { margin-top:16px; }
   .input { width:100%; padding:13px 15px; border-radius:12px; border:2px solid var(--line); background:#1d0f3a; color:var(--ink); font:inherit; font-size:16px; }
   .err { color:var(--no); font-size:14px; min-height:18px; }
+  /* cronômetro geral da apresentação (discreto, canto de cima) */
+  .pres-timer { position:fixed; top:10px; right:12px; z-index:40; font:600 13px/1 ui-monospace,Menlo,Consolas,monospace; color:var(--soft); background:rgba(18,8,34,.55); border:1px solid var(--line); border-radius:999px; padding:6px 10px; opacity:.55; cursor:pointer; user-select:none; transition:opacity .2s; }
+  .pres-timer:hover, .pres-timer.paused { opacity:1; }
+  .pres-timer.paused { color:var(--warn); }
 </style>
 </head>
 <body>
@@ -246,14 +250,14 @@ function pObjetivos() {
         <div class="bl"><b class="lv">CRIAR</b><span>Propor um plano de dados para uma IA de pele usada no Brasil.</span></div>
       </div>
       <div class="timeline">
-        <div class="tl"><b>1 · Detetive</b>3:30</div><div class="tl th"><b>2 · Explicação</b>3:00</div><div class="tl"><b>3 · Pesquisa</b>4:00</div>
-        <div class="tl"><b>4 · Treinador</b>4:00</div><div class="tl"><b>5 · Auditoria</b>2:30</div><div class="tl"><b>6 · Plano</b>2:30</div>
+        <div class="tl"><b>1 · Detetive</b>3:00</div><div class="tl th"><b>2 · Explicação</b>3:00</div><div class="tl"><b>3 · Pesquisa</b>4:00</div>
+        <div class="tl"><b>4 · Treinador</b>3:00</div><div class="tl"><b>5 · Auditoria</b>2:00</div><div class="tl"><b>6 · Plano</b>2:30</div>
       </div>
     </div><div class="hero-side" style="align-self:center"><div class="joinbox">Entrem em:<br><b>${location.origin}</b><br><span class="muted">👥 <span id="joinCount">0</span> conectados · use um apelido</span></div></div></div>`);
 }
 function pIntroDetetive() {
   show(`<div class="cc">
-      <div class="eyebrow">Atividade 1 de 6 · 3 min 30 s · analisar</div>
+      <div class="eyebrow">Atividade 1 de 6 · 3 minutos · analisar</div>
       <h1>Detetive de dados: <span class="accent">a IA das pintas</span></h1>
       <p style="max-width:760px">Um hospital treinou uma IA para dizer se uma pinta na pele é <b>suspeita</b> (pode ser câncer) ou <b>benigna</b>. Nos testes, ela acertou <b>95%</b>. Vocês vão auditar 6 fotos e descobrir se ela aprendeu mesmo.</p>
       <div class="three float" style="max-width:700px">${skin('s1', '<span class="tag sus">🤖 Suspeita · 97%</span>')}${skin('s2', '<span class="tag sus">🤖 Suspeita · 94%</span>')}${skin('s3', '<span class="tag ben">🤖 Benigna · 89%</span>')}</div>
@@ -320,7 +324,7 @@ function pMuralPesquisa() {
 }
 function pIntroTreino() {
   show(`<div class="cc" style="max-width:1020px">
-      <div class="eyebrow">Atividade 4 de 6 · jogo · 4 minutos · aplicar</div>
+      <div class="eyebrow">Atividade 4 de 6 · jogo · 3 minutos · aplicar</div>
       <h1>Treinador de <span class="accent">IA</span></h1>
       <p style="max-width:800px">Agora vocês ensinam a IA. Ela aprende o <b>tipo</b> de um Pokémon (🔥 💧 🌿) com <b>6 fotos</b> escolhidas por vocês e depois faz uma prova com fotos que nunca viu.</p>
       <div class="two" style="max-width:900px;align-items:center">
@@ -338,7 +342,7 @@ function pIntroTreino() {
 }
 function pIntroAuditoria() {
   show(`<div class="cc">
-      <div class="eyebrow">Atividade 5 de 6 · 2 min 30 s · 15 segundos por caso</div>
+      <div class="eyebrow">Atividade 5 de 6 · 2 minutos · 15 segundos por caso</div>
       <h1>Auditoria <span class="accent">relâmpago</span></h1>
       <p style="max-width:720px">Vocês são a equipe que audita IAs de saúde. São 6 casos, vários tirados do artigo. Para cada um, deem o diagnóstico. O último vale dobrado.</p>
       <div class="optrow"><div>✂️ Atalho<span>aprendeu um detalhe da foto</span></div><div>👥 Faltou representatividade<span>faltou gente nos dados</span></div><div>🧠 Aprendeu de verdade<span>funciona fora do treino</span></div></div>
@@ -416,6 +420,40 @@ async function tryLogin() {
 document.getElementById('loginBtn').onclick = () => { PW = document.getElementById('pw').value; tryLogin(); };
 document.getElementById('pw').onkeydown = (e) => { if (e.key === 'Enter') document.getElementById('loginBtn').click(); };
 if (PW) tryLogin();
+</script>
+<div class="pres-timer" id="presTimer" title="Cronômetro da apresentação: clique para iniciar/pausar, clique duplo para zerar">⏱ iniciar</div>
+<script>
+// Cronômetro geral da apresentação: começa no 1º clique; clique pausa/retoma; duplo clique zera.
+// Fica salvo no navegador (recarregar a página não zera).
+(function () {
+  const el = document.getElementById('presTimer');
+  const KEY = 'presTimer';
+  let st = { start: null, acc: 0 };
+  try { st = JSON.parse(localStorage.getItem(KEY)) || st; } catch (e) {}
+  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) {} };
+  const elapsed = () => st.acc + (st.start ? Date.now() - st.start : 0);
+  function draw() {
+    const t = Math.floor(elapsed() / 1000);
+    if (!st.start && !st.acc) { el.textContent = '⏱ iniciar'; el.classList.remove('paused'); return; }
+    const h = Math.floor(t / 3600), m = Math.floor((t % 3600) / 60), sec = t % 60;
+    el.textContent = '⏱ ' + (h ? h + ':' + String(m).padStart(2, '0') : m) + ':' + String(sec).padStart(2, '0');
+    el.classList.toggle('paused', !st.start);
+  }
+  let clickTimer = null;
+  el.addEventListener('click', () => {
+    clearTimeout(clickTimer);
+    clickTimer = setTimeout(() => {
+      if (st.start) { st.acc += Date.now() - st.start; st.start = null; } else { st.start = Date.now(); }
+      save(); draw();
+    }, 250);
+  });
+  el.addEventListener('dblclick', () => {
+    clearTimeout(clickTimer);
+    if (confirm('Zerar o cronômetro da apresentação?')) { st = { start: null, acc: 0 }; save(); draw(); }
+  });
+  setInterval(draw, 1000);
+  draw();
+})();
 </script>
 </body>
 </html>

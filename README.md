@@ -34,14 +34,14 @@ Depois, no painel: ⚙ → Reiniciar aula.
 | --- | --- |
 | 1 Abertura "Da API à IA" | 0:45 |
 | 2 Objetivos (Bloom) + link | 0:45 |
-| 3 Detetive de dados (IA das pintas) → Liberar | 3:30 |
+| 3 Detetive de dados (IA das pintas) → Liberar | 3:00 |
 | Ranking + painel | 0:30 |
 | 4 Explicação (2 telas, fecha a etapa anterior) | 3:00 |
 | 5 Pesquisa no artigo → Liberar | 4:00 |
 | Mural da pergunta norteadora | 0:30 |
-| 6 Treinador (fecha a pesquisa) → Liberar | 4:00 |
+| 6 Treinador (fecha a pesquisa) → Liberar | 3:00 |
 | Ranking + painel | 0:30 |
-| 7 Auditoria relâmpago (15 s por caso) → Liberar | 2:30 |
+| 7 Auditoria relâmpago (15 s por caso) → Liberar | 2:00 |
 | Ranking | 0:15 |
 | 8 Plano de dados → Liberar | 2:30 |
 | Mural do plano | 0:45 |
