@@ -4,6 +4,22 @@ const send = (res, code, obj) => res.status(code).json(obj);
 
 const card = (c) => ({ ...c, nome: C.POKEMON[c.pk].nome });
 const STAGE_OF = { detetive_submit: 'detetive', pesquisa_answer: 'pesquisa', pesquisa_norteadora: 'pesquisa', treino_train: 'treino', treino_done: 'treino', plano_submit: 'plano' };
+// dados de cada nível do treinador
+function treinoData(p, nivel) {
+  const T = nivel === 2 ? C.TREINO2 : C.TREINO; const st = nivel === 2 ? p.treino.n2 : p.treino;
+  return { nivel, escolher: T.escolher, maxTentativas: T.maxTentativas, pool: T.pool.map((c) => ({ ...card(c), tipo: C.POKEMON[c.pk].tipo, cor: C.POKEMON[c.pk].cor })), teste: T.teste.map((c) => ({ ...card(c), cor: C.POKEMON[c.pk].cor })), tentativas: st.tentativas, melhor: st.melhor };
+}
+function treinoPts(p) {
+  const P = C.POINTS, t = p.treino, n1 = C.TREINO.teste.length, n2 = C.TREINO2.teste.length;
+  let pts = t.melhor * P.treinoAcerto + (t.melhor === n1 ? P.treinoPerfeito : 0) + (t.previu ? P.treinoPrevisao : 0);
+  if (t.n2) pts += t.n2.melhor * P.treino2Acerto + (t.n2.melhor === n2 ? P.treino2Perfeito : 0) + (t.n2.previu ? P.treino2Previsao : 0);
+  return pts;
+}
+// quem fecha o nível 1 com tempo sobrando ganha o nível 2
+function liberaNivel2(p, st, now) {
+  if (!p.treino.n2 && st.deadline && st.deadline - now >= C.TREINO2.minRestanteMs) p.treino.n2 = { tentativas: 0, melhor: 0, previu: false, done: false };
+  return !!(p.treino.n2 && !p.treino.n2.done);
+}
 const clean = (t, max) => String(t || '').trim().replace(/\s+/g, ' ').slice(0, max);
 
 async function join(res, body) {
@@ -47,7 +63,7 @@ module.exports = async (req, res) => {
       const base = { done: G.isDone(p, stage), points: p.scores[stage] || 0, remainingMs };
       if (stage === 'detetive') return send(res, 200, { ...base, fotos: C.DETETIVE.fotos.map((f) => ({ id: f.id, tom: f.tom, lesao: f.lesao, regua: f.regua, ia: f.ia, conf: f.conf, real: f.real })), regras: C.DETETIVE.regras });
       if (stage === 'pesquisa') return send(res, 200, { ...base, citacao: C.PESQUISA.citacao, url: C.PESQUISA.url, site: C.PESQUISA.site, prompts: C.PESQUISA.questions.map((q) => ({ prompt: q.prompt, onde: q.onde, busca: q.busca, dica: q.dica })), answered: p.pesquisa.answered, norteadora: C.PESQUISA.norteadora, minNorteadora: C.PESQUISA.minNorteadora, enviou: !!p.pesquisa.norteadora });
-      if (stage === 'treino') return send(res, 200, { ...base, escolher: C.TREINO.escolher, maxTentativas: C.TREINO.maxTentativas, pool: C.TREINO.pool.map((c) => ({ ...card(c), tipo: C.POKEMON[c.pk].tipo, cor: C.POKEMON[c.pk].cor })), teste: C.TREINO.teste.map((c) => ({ ...card(c), cor: C.POKEMON[c.pk].cor })), tentativas: p.treino.tentativas, melhor: p.treino.melhor });
+      if (stage === 'treino') return send(res, 200, { ...base, ...treinoData(p, p.treino.done && p.treino.n2 ? 2 : 1) });
       if (stage === 'auditoria') return send(res, 200, { ...base, total: C.AUDITORIA.casos.length, idx: p.auditoria.idx });
       if (stage === 'plano') return send(res, 200, { ...base, escolher: C.PLANO.escolher, minFrase: C.PLANO.minFrase, pergunta: C.PLANO.pergunta, opcoes: C.PLANO.opcoes.map((o) => ({ id: o.id, text: o.text })) });
       return send(res, 400, { error: 'stage' });
@@ -100,28 +116,35 @@ module.exports = async (req, res) => {
     // ---------- 4) Treinador ----------
     if (action === 'treino_train') {
       if (!need('treino')) return;
-      if (p.treino.done) return send(res, 200, { already: true, done: true });
+      const nivel = Number(body.nivel) === 2 ? 2 : 1;
+      const T = nivel === 2 ? C.TREINO2 : C.TREINO;
+      const t = nivel === 2 ? p.treino.n2 : p.treino;
+      if (!t) return send(res, 400, { error: 'O nível 2 não está liberado.' });
+      if (t.done) return send(res, 200, { already: true, done: true });
+      if (nivel === 1 && p.treino.done) return send(res, 200, { already: true, done: true });
       const ids = [...new Set(Array.isArray(body.ids) ? body.ids : [])];
-      const cards = C.TREINO.pool.filter((c) => ids.includes(c.id));
-      if (cards.length !== C.TREINO.escolher) return send(res, 400, { error: `Escolha exatamente ${C.TREINO.escolher} fotos de treino.` });
+      const cards = T.pool.filter((c) => ids.includes(c.id));
+      if (cards.length !== T.escolher) return send(res, 400, { error: `Escolha exatamente ${T.escolher} fotos de treino.` });
       const prev = Number(body.previsao);
-      if (!(prev >= 0 && prev <= C.TREINO.teste.length)) return send(res, 400, { error: 'Antes de treinar, preveja quantas a IA vai acertar.' });
-      const r = G.treinar(cards);
-      p.treino.tentativas += 1;
-      if (r.acertos > p.treino.melhor) p.treino.melhor = r.acertos;
+      if (!(prev >= 0 && prev <= T.teste.length)) return send(res, 400, { error: 'Antes de treinar, preveja quantas a IA vai acertar.' });
+      const r = G.treinar(cards, T.teste);
+      t.tentativas += 1;
+      if (r.acertos > t.melhor) t.melhor = r.acertos;
       const previuAgora = prev === r.acertos;
-      if (previuAgora) p.treino.previu = true;
-      const tot = C.TREINO.teste.length;
-      const pts = p.treino.melhor * C.POINTS.treinoAcerto + (p.treino.melhor === tot ? C.POINTS.treinoPerfeito : 0) + (p.treino.previu ? C.POINTS.treinoPrevisao : 0);
-      p.scores.treino = pts;
-      if (r.acertos === tot || p.treino.tentativas >= C.TREINO.maxTentativas) p.treino.done = true;
+      if (previuAgora) t.previu = true;
+      if (r.acertos === T.teste.length || t.tentativas >= T.maxTentativas) t.done = true;
+      const nivel2 = nivel === 1 && t.done ? liberaNivel2(p, st, now) : false;
+      p.scores.treino = treinoPts(p);
       await G.savePlayer(p);
-      return send(res, 200, { ...r, prova: r.prova.map((x) => ({ ...card(x), real: x.real, palpite: x.palpite, por: x.por, ok: x.ok })), previsao: prev, previuAgora, points: pts, melhor: p.treino.melhor, tentativas: p.treino.tentativas, maxTentativas: C.TREINO.maxTentativas, done: p.treino.done });
+      return send(res, 200, { ...r, nivel, prova: r.prova.map((x) => ({ ...card(x), real: x.real, palpite: x.palpite, por: x.por, ok: x.ok })), previsao: prev, previuAgora, points: p.scores.treino, melhor: t.melhor, tentativas: t.tentativas, maxTentativas: T.maxTentativas, done: t.done, nivel2 });
     }
     if (action === 'treino_done') {
       if (!need('treino')) return;
-      p.treino.done = true; await G.savePlayer(p);
-      return send(res, 200, { done: true, points: p.scores.treino });
+      let nivel2 = false;
+      if (Number(body.nivel) === 2) { if (p.treino.n2) p.treino.n2.done = true; }
+      else if (!p.treino.done) { p.treino.done = true; nivel2 = liberaNivel2(p, st, now); }
+      await G.savePlayer(p);
+      return send(res, 200, { done: true, nivel2, points: p.scores.treino });
     }
 
     // ---------- 5) Auditoria relâmpago ----------

@@ -54,6 +54,8 @@ Tudo fica em `lib/content.js`: fotos, perguntas, casos, opções, pontos e tempo
 
 - **Pesquisa:** cada pergunta tem `onde` (seção e página) e `busca` (palavra para o Ctrl+F).
 - **Auditoria:** tempo por caso em `AUDITORIA.limitMs`.
+- **Treinador nível 2:** em `TREINO2`. Quem termina o nível 1 com `minRestanteMs` (1 min 30 s) ou mais de etapa sobrando vai para o nível 2: 4 fotos, só Fogo e Água, sem o "cérebro da IA". Das 70 combinações, só 5 tiram 4/4.
+- **Tempo de leitura do feedback:** depois de enviar, o aluno fica na tela de feedback até faltarem 20 s da etapa (`READ_UNTIL` em `public/index.html`). O botão +30 s do painel só atualiza o relógio, sem recarregar a atividade.
 - **Ilustrações de pele:** desenhadas em `public/pele.js` (tom de pele, tipo de pinta, régua). Não são fotos de pacientes.
 
 ## Créditos

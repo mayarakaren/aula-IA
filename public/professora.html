@@ -332,6 +332,7 @@ function pIntroTreino() {
           <p style="font-size:14.5px">Todo Fogo no vulcão? Ela aprende <b>"vulcão = Fogo"</b>. Um <b>Charmander na grama</b> quebra esse atalho.</p></div>
       </div>
       ${art('<b>Ligação com o artigo:</b> na foto de pele, o "fundo" é a régua, o aparelho, a iluminação; a "cor" é o tom de pele. Na tela de vocês, um <b>cérebro da IA ao vivo</b> mostra o atalho se formando.')}
+      <div class="q" style="max-width:900px;font-size:17px">🚀 Terminou com 1 min 30 s sobrando? Vai para o <b>nível 2</b>: só 4 fotos e <b>sem o cérebro da IA</b>. No olhômetro!</div>
       ${unlockZone('treino', 'Liberar o Treinador')}
     </div>`);
 }
@@ -400,6 +401,7 @@ async function pRanking(title, painel, stageAfter) {
         <div class="pbox">🎓 Treinaram: <b>${t.jogaram}</b> de ${b.count} · melhor nota média: <b>${t.melhorMedia}/${t.total}</b></div>
         <div class="pbox">🎉 Fizeram a IA tirar <b>${t.total}/${t.total}</b>: <b>${t.perfeitos}</b></div>
         <div class="pbox">🔮 Acertaram a própria previsão: <b>${t.previram}</b> · tentativas em média: <b>${t.tentativasMedia}</b></div>
+        <div class="pbox">🚀 Chegaram ao nível 2 (olhômetro): <b>${t.nivel2 || 0}</b> · tiraram ${t.total2 || 4}/${t.total2 || 4}: <b>${t.nivel2Perfeitos || 0}</b></div>
         <div class="pbox">💡 O segredo: <b>contraexemplos</b> para cada pista. Um atalho só cai com pelo menos 2 fotos que o contrariam.</div></div>`;
     }
     show(`<div class="rank-wrap"><div class="rank-col"><h2>${title}</h2>${rows}<p class="muted" style="margin-top:8px">👥 ${b.count} participantes</p></div>${side}</div>`);

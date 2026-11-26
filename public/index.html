@@ -180,20 +180,33 @@ async function api(action, extra = {}) {
   if (!r.ok) throw new Error(j.error || 'erro');
   return j;
 }
+// prazo da etapa no relógio deste aparelho
+let stageEnd = null, fbStage = null, fbTimer = null;
+const READ_UNTIL = 20000; // a tela de espera aparece quando faltarem 20 s
 function stageChip(ms, stage) {
   const chip = document.getElementById('stageChip');
   if (stageTimer) { clearInterval(stageTimer); stageTimer = null; }
+  stageEnd = ms == null ? null : Date.now() + ms;
   if (ms == null) { chip.style.display = 'none'; return; }
-  chip.style.display = ''; const t0 = Date.now();
+  chip.style.display = '';
   const tick = () => {
-    const left = Math.max(0, ms - (Date.now() - t0));
+    const left = Math.max(0, stageEnd - Date.now());
     chip.textContent = '⏱ ' + fmt(left); chip.classList.toggle('low', left < 15000);
     if (left <= 0) { clearInterval(stageTimer); stageTimer = null; chip.style.display = 'none'; if (curStage === stage && app.dataset.playing === stage) showTimeUp(stage); }
   };
   tick(); stageTimer = setInterval(tick, 250);
 }
 const playing = (stage) => { app.dataset.playing = stage; };
-const later = (stage, ms) => setTimeout(() => { if (curStage === stage) waitDone(stage); }, ms);
+const cancelLater = () => { fbStage = null; if (fbTimer) { clearTimeout(fbTimer); fbTimer = null; } };
+function scheduleWait() {
+  if (fbTimer) { clearTimeout(fbTimer); fbTimer = null; }
+  if (!fbStage) return;
+  const ms = stageEnd ? Math.max(4000, stageEnd - Date.now() - READ_UNTIL) : 15000;
+  fbTimer = setTimeout(() => { const st = fbStage; cancelLater(); if (curStage === st) waitDone(st); }, ms);
+}
+// depois de enviar: deixa o feedback na tela para a pessoa ler
+const later = (stage) => { fbStage = stage; scheduleWait(); };
+const readHint = () => `<p class="muted center">📖 Leia com calma: esta tela fica aberta até faltarem 20 s da atividade.</p>`;
 
 // ---------- entrada ----------
 const PEEK = [{ id: 'j1', tom: 2, lesao: 'suspeita', regua: true }, { id: 'j2', tom: 5, lesao: 'benigna', regua: false }, { id: 'j3', tom: 3, lesao: 'benigna', regua: true }];
@@ -223,7 +236,7 @@ function showJoin(msg) {
 
 // ---------- espera / tempo esgotado ----------
 async function showWait(kind, text) {
-  clearTimer(); playing(''); wide(false);
+  clearTimer(); cancelLater(); playing(''); wide(false);
   const t = text || (kind === 'lobby' ? 'Você está dentro! Aguarde a professora liberar a primeira atividade.' : kind === 'closed' ? 'Atividade encerrada. Aguarde a próxima.' : 'Aguarde a professora liberar.');
   app.innerHTML = `<div class="icon">⏳</div><h2 class="center">Aguarde a próxima instrução</h2><p class="center">${t}</p><div id="rkBox"></div>`;
   if (kind !== 'closed') return;
@@ -235,7 +248,7 @@ async function showWait(kind, text) {
 }
 const waitDone = (stage) => showWait(stage, 'Você concluiu esta atividade! Aguarde a professora liberar a próxima.');
 function showTimeUp() {
-  clearTimer(); playing(''); wide(false);
+  clearTimer(); cancelLater(); playing(''); wide(false);
   app.innerHTML = `<div class="icon">⏱️</div><h2 class="center">Tempo esgotado</h2><p class="center">Aguarde a professora liberar a próxima atividade.</p>`;
 }
 
@@ -243,7 +256,7 @@ function showTimeUp() {
 async function route(stage) {
   const mine = ++routing;
   if (!me) return showJoin();
-  curStage = stage; clearTimer(); stageChip(null); paintSteps(stage); playing(''); wide(false);
+  curStage = stage; clearTimer(); cancelLater(); stageChip(null); paintSteps(stage); playing(''); wide(false);
   if (stage === 'lobby' || stage === 'closed') return showWait(stage);
   try {
     if (stage === 'final') return await showFinal();
@@ -300,8 +313,8 @@ function showDetetive(d) {
         <div class="fb ${r.regraOk ? 'ok' : 'info'}">🔥 As fotos agora mostram o <b>mapa de calor</b>: onde a IA olhou. ${r.regraOk ? 'Você descobriu o atalho: <b>régua na foto = suspeita</b>.' : 'Repare: sempre que tem <b>régua</b>, a IA diz "suspeita", até na pinta benigna. E a pinta suspeita sem régua passou batido.'}
         <br><span class="n">Por quê? No hospital, o médico só media com régua as pintas que já achava perigosas. A IA aprendeu a régua, não a pinta.</span></div>
         <div class="legend"><span>🔴 olhou muito</span><span>🔵 olhou pouco</span><span>(ilustração e mapa simulados para a aula)</span></div>
-        ${art('<b>Ligação com o artigo:</b> as primeiras IAs de pele focaram em câncer de pele justamente porque as fotos eram fáceis de <b>padronizar</b> (p. 4). Foto padronizada demais vira terreno fértil para atalhos.')}`;
-      later('detetive', 15000);
+        ${art('<b>Ligação com o artigo:</b> as primeiras IAs de pele focaram em câncer de pele justamente porque as fotos eram fáceis de <b>padronizar</b> (p. 4). Foto padronizada demais vira terreno fértil para atalhos.')}${readHint()}`;
+      later('detetive');
     } catch (e) { if (isMsg(e)) fb.innerHTML = `<div class="fb no">${esc(e.message)}</div>`; }
   };
 }
@@ -310,7 +323,7 @@ function showDetetive(d) {
 function showPesquisa(d) {
   wide(false);
   const state = { answered: [...d.answered], enviou: d.enviou };
-  const check = () => { if (state.answered.every(Boolean) && state.enviou) { playing(''); later('pesquisa', 2500); } };
+  const check = () => { if (state.answered.every(Boolean) && state.enviou) { playing(''); document.getElementById('nfb').insertAdjacentHTML('beforeend', '<div class="fb ok">🎉 Pesquisa completa! Revise suas respostas e veja o mural na tela da professora.</div>' + readHint()); later('pesquisa'); } };
   app.innerHTML = `
     <div class="head"><div class="icon">📄</div><div><div class="kicker">Atividade 3 · Pesquisa em artigo científico</div><h2>O que a pesquisa brasileira diz?</h2>
       <p>Uma equipe da Unicamp revisou estudos de IA em doenças de pele. Vamos usar o artigo para entender <b>por que</b> a IA das pintas falharia no Brasil.</p></div></div>
@@ -356,33 +369,47 @@ function pista(cards, campo) {
   const ok = Object.values(m).reduce((s, cnt) => s + Math.max(...Object.values(cnt)), 0);
   return { ok, grupos: Object.keys(m).length };
 }
+const motivo = (x) => x.por === 'cor' ? 'colou pela cor' : x.por === 'fundo' ? 'colou pelo fundo' : x.por === 'nunca-viu' ? 'nunca viu esse tipo' : 'olhou o Pokémon';
 function showTreino(d) {
   wide(true);
+  const n2 = d.nivel === 2;
   const sel = new Set(); let prev = null; const tent = d.tentativas;
   const byId = Object.fromEntries(d.pool.map((c) => [c.id, c]));
-  app.innerHTML = `
+  const tiposPool = TIPOS.filter((t) => d.pool.some((c) => c.tipo === t));
+  const minAtalho = d.escolher - 1;
+  const provaGrid = d.teste.length > 4 ? 'grid6' : 'grid4';
+  const intro = n2 ? `
+    <div class="head"><div class="icon">🚀</div><div><div class="kicker">Atividade 4 · Nível 2 · Olhômetro</div><h2>Treinador de IA: nível 2</h2>
+      <p>Mandou bem! Agora o desafio aumenta: só <b>${d.escolher} fotos</b>, só ${tiposPool.map((t) => TIPO_E[t] + ' ' + t).join(' e ')}, e o <b>cérebro da IA está desligado</b>. Você vai ter que descobrir os atalhos no olhômetro. 👀</p></div></div>
+    <div class="box"><h3>📏 A regra mudou de tamanho</h3>
+      <div class="rules3">
+        <div><span class="e">✂️</span><span>Com ${d.escolher} fotos, uma pista vira <b>atalho</b> se acerta <b>${minAtalho} das ${d.escolher}</b>. Ela continua preguiçosa: testa o <b>fundo</b> e depois a <b>cor</b>.</span></div>
+        <div><span class="e">🎨</span><span>Cuidado com a cor: aqui tem Pokémon de Água <b>laranja</b> e <b>amarelo</b>, e de Fogo também.</span></div>
+        <div><span class="e">🧩</span><span>Antes de treinar, confira: o fundo sozinho separa os tipos? E a cor? Se algum separar, falta contraexemplo.</span></div>
+      </div></div>` : `
     <div class="head"><div class="icon">🎓</div><div><div class="kicker">Atividade 4 · Jogo · Aplicar</div><h2>Treinador de IA</h2>
       <p>Agora é você quem ensina. Esta IA aprende a dizer o <b>tipo</b> de um Pokémon (🔥 Fogo, 💧 Água, 🌿 Planta) a partir de <b>${d.escolher} fotos</b> que você escolhe. Depois ela faz uma prova com fotos que nunca viu.</p></div></div>
     <div class="box"><h3>🧠 Como esta IA pensa</h3>
       <div class="rules3">
         <div><span class="e">😴</span><span>Ela é <b>preguiçosa</b>: procura a pista mais fácil que separa os tipos. Primeiro testa o <b>fundo</b> da foto, depois a <b>cor</b> do Pokémon.</span></div>
-        <div><span class="e">✂️</span><span>Se uma pista acerta <b>5 das 6</b> fotos do treino, ela vira <b>atalho</b> e a IA cola. Ex.: se todo Pokémon de Fogo está no vulcão, ela aprende "vulcão = Fogo".</span></div>
+        <div><span class="e">✂️</span><span>Se uma pista acerta <b>${minAtalho} das ${d.escolher}</b> fotos do treino, ela vira <b>atalho</b> e a IA cola. Ex.: se todo Pokémon de Fogo está no vulcão, ela aprende "vulcão = Fogo".</span></div>
         <div><span class="e">🧩</span><span>Sua missão: colocar <b>contraexemplos</b> (como um Pokémon de Fogo na grama) até nenhuma pista funcionar sozinha. Aí ela é obrigada a olhar o Pokémon.</span></div>
       </div>
       ${art('<b>Ligação com o artigo:</b> na foto de pele, o "fundo" é a régua, o aparelho, a iluminação; a "cor" é o tom de pele. O artigo pede fotos variadas e de todos os tons pelo mesmo motivo.')}
-    </div>
-    <div class="box"><h3>📝 A prova (a IA nunca viu estas fotos)</h3><div class="grid6 mini">${d.teste.map((c) => `<div>${foto(c.pk, c.fundo)}<div class="nm">${esc(c.nome)}</div></div>`).join('')}</div>
+      <p class="muted">🚀 Terminou com 1 min 30 s sobrando? Você desbloqueia o <b>nível 2</b>, sem o cérebro da IA.</p>
+    </div>`;
+  const poolHtml = `<div class="grid4 ${n2 ? '' : 'pool3'}" id="pool">${d.pool.map((c) => `<div class="pc pick" data-id="${c.id}">${foto(c.pk, c.fundo, tipoTag(c.tipo))}<div class="nm">${esc(c.nome)}<br><span class="muted">cor ${c.cor} · ${FUNDO_N[c.fundo]}</span></div></div>`).join('')}</div>`;
+  app.innerHTML = `${intro}
+    <div class="box"><h3>📝 A prova (a IA nunca viu estas fotos)</h3><div class="${provaGrid} mini">${d.teste.map((c) => `<div>${foto(c.pk, c.fundo)}<div class="nm">${esc(c.nome)}</div></div>`).join('')}</div>
       <p class="muted">Repare: aqui o fundo e a cor <b>enganam</b>. Um Pokémon de Água no vulcão, um de Fogo no mar...</p></div>
-    <div class="two">
-      <div><h3 style="margin-bottom:12px">Escolha ${d.escolher} fotos para o treino</h3>
-        <div class="grid4 pool3" id="pool">${d.pool.map((c) => `<div class="pc pick" data-id="${c.id}">${foto(c.pk, c.fundo, tipoTag(c.tipo))}<div class="nm">${esc(c.nome)}<br><span class="muted">cor ${c.cor} · ${FUNDO_N[c.fundo]}</span></div></div>`).join('')}</div></div>
-      <div class="brain" id="brain"></div>
-    </div>
-    <div class="box"><h3>🔮 Sua previsão: quantas das ${d.teste.length} a IA vai acertar?</h3><div class="chips" id="prev">${Array.from({ length: d.teste.length + 1 }, (_, k) => `<button class="chip" data-v="${k}">${k}</button>`).join('')}</div><p class="muted center">Acertar a previsão vale +40 pontos. Você tem ${d.maxTentativas} tentativas.</p></div>
+    ${n2 ? `<div><h3 style="margin-bottom:12px">Escolha ${d.escolher} fotos para o treino</h3>${poolHtml}</div>`
+      : `<div class="two"><div><h3 style="margin-bottom:12px">Escolha ${d.escolher} fotos para o treino</h3>${poolHtml}</div><div class="brain" id="brain"></div></div>`}
+    <div class="box"><h3>🔮 Sua previsão: quantas das ${d.teste.length} a IA vai acertar?</h3><div class="chips" id="prev">${Array.from({ length: d.teste.length + 1 }, (_, k) => `<button class="chip" data-v="${k}">${k}</button>`).join('')}</div><p class="muted center">Acertar a previsão vale +40 pontos. Você tem ${d.maxTentativas} tentativas${n2 ? ' neste nível' : ''}.</p></div>
     <div class="btnrow"><span class="counter" id="cnt">0/${d.escolher} escolhidas</span><button class="btn" id="train" disabled>🧠 Treinar a IA</button></div>
     <div id="out">${tent ? `<p class="muted center">Tentativas usadas: ${tent}/${d.maxTentativas} · melhor nota: ${d.melhor}/${d.teste.length}</p>` : ''}</div>`;
   const cnt = document.getElementById('cnt'), train = document.getElementById('train');
   const brain = () => {
+    if (n2) return;
     const cards = [...sel].map((id) => byId[id]); const n = cards.length;
     const tipos = new Set(cards.map((c) => c.tipo));
     const row = (ic, nome, campo) => {
@@ -390,7 +417,7 @@ function showTreino(d) {
       return { atalho, html: `<div class="meter ${atalho ? 'hot' : ''}"><span>${ic} ${nome}</span><div class="t"><i style="width:${n ? (p.ok / n) * 100 : 0}%"></i></div><b>${p.ok}/${n}</b></div>` };
     };
     const f = row('🏞️', 'Fundo', 'fundo'), c = row('🎨', 'Cor', 'cor');
-    const falta = TIPOS.filter((t) => !tipos.has(t));
+    const falta = tiposPool.filter((t) => !tipos.has(t));
     let v;
     if (n < d.escolher) v = `<div class="verdict">Escolha mais ${d.escolher - n} foto${d.escolher - n > 1 ? 's' : ''}.${f.atalho || c.atalho ? ` Por enquanto, ela colaria pel${f.atalho ? 'o <b>fundo</b>' : 'a <b>cor</b>'}.` : ''}</div>`;
     else if (f.atalho) v = '<div class="verdict bad">⚠️ Do jeito que está, a IA vai colar pelo <b>FUNDO</b>. Troque fotos para criar contraexemplos.</div>';
@@ -398,9 +425,9 @@ function showTreino(d) {
     else if (falta.length) v = `<div class="verdict bad">⚠️ Faltou ${falta.map((t) => TIPO_E[t] + ' ' + t).join(' e ')}: ela nunca viu esse tipo e vai chutar.</div>`;
     else v = '<div class="verdict good">✅ Nenhum atalho funciona! Ela vai ter que olhar o Pokémon de verdade.</div>';
     document.getElementById('brain').innerHTML = `<h3>🧠 Cérebro da IA (ao vivo)</h3>
-      <p class="muted">Quantas fotos do seu treino cada pista explica sozinha. Barra vermelha = atalho (5 ou mais de 6).</p>
+      <p class="muted">Quantas fotos do seu treino cada pista explica sozinha. Barra vermelha = atalho (${minAtalho} ou mais de ${d.escolher}).</p>
       ${f.html}${c.html}
-      <div class="types">${TIPOS.map((t) => `<span class="${tipos.has(t) ? 'on' : ''}">${TIPO_E[t]} ${t}</span>`).join('')}</div>${v}`;
+      <div class="types">${tiposPool.map((t) => `<span class="${tipos.has(t) ? 'on' : ''}">${TIPO_E[t]} ${t}</span>`).join('')}</div>${v}`;
   };
   const upd = () => { cnt.textContent = `${sel.size}/${d.escolher} escolhidas`; train.disabled = sel.size !== d.escolher || prev === null; brain(); };
   app.querySelectorAll('.pick').forEach((el) => el.onclick = () => {
@@ -410,35 +437,52 @@ function showTreino(d) {
   });
   app.querySelectorAll('#prev .chip').forEach((b) => b.onclick = () => { prev = Number(b.dataset.v); app.querySelectorAll('#prev .chip').forEach((x) => x.classList.toggle('on', x === b)); upd(); });
   upd();
+  // fim de nível: vai para o nível 2 (se liberado) ou fica no feedback até faltarem 20 s
+  const fim = (out, r) => {
+    playing('');
+    if (r.nivel2) {
+      let k = 15;
+      out.insertAdjacentHTML('beforeend', `<div class="fb info center" style="margin-top:16px">🚀 <b>Nível 2 desbloqueado!</b> Você terminou com tempo sobrando. Começa em <b id="n2k">${k}</b> s.<div class="btnrow" style="margin-top:12px"><button class="btn" id="go2">Ir para o nível 2 agora</button></div></div>`);
+      const go = () => { clearInterval(iv); if (curStage === 'treino') route('treino'); };
+      const iv = setInterval(() => { k -= 1; const el = document.getElementById('n2k'); if (!el || curStage !== 'treino') return clearInterval(iv); el.textContent = k; if (k <= 0) go(); }, 1000);
+      document.getElementById('go2').onclick = go;
+    } else { out.insertAdjacentHTML('beforeend', readHint()); later('treino'); }
+  };
   train.onclick = async () => {
     train.disabled = true;
     try {
-      const r = await api('treino_train', { ids: [...sel], previsao: prev });
+      const r = await api('treino_train', { ids: [...sel], previsao: prev, nivel: d.nivel || 1 });
       api('me').then((m) => setScore(m.total)).catch(() => {});
-      const motivo = (x) => x.por === 'cor' ? 'colou pela cor' : x.por === 'fundo' ? 'colou pelo fundo' : x.por === 'nunca-viu' ? 'nunca viu esse tipo' : 'olhou o Pokémon';
       const T = r.total;
-      document.getElementById('out').innerHTML = `
+      const out = document.getElementById('out');
+      out.innerHTML = `
         <div class="box">
           <h3>${r.acertos === T ? `🎉 ${T}/${T}! Sua IA aprendeu de verdade.` : `Nota da IA: ${r.acertos}/${T}`}</h3>
           <div class="fb ${r.previuAgora ? 'ok' : 'info'}">Você previu ${r.previsao}. ${r.previuAgora ? 'Acertou a previsão: você entendeu como ela aprende!' : 'A previsão não bateu. O que você não esperava?'}</div>
           ${r.regras.length ? `<p>A IA encontrou estes <b>atalhos</b> nas suas fotos de treino:</p><div class="regras">${r.regras.map(esc).join('<br>')}</div>` : `<p>Nenhum atalho funcionava nas suas fotos, então ela precisou aprender <b>a forma do Pokémon</b>.</p>`}
-          <div class="grid6 mini">${r.prova.map((x) => `<div class="pc ${x.ok ? 'right' : 'wrong'}" style="padding:6px">${foto(x.pk, x.fundo, `<span class="tag">${TIPO_E[x.palpite] || ''} ${esc(x.palpite)}</span>`)}<div class="nm">${x.ok ? '✅' : '❌'} ${esc(x.nome)}<br><span class="muted">${motivo(x)}</span></div></div>`).join('')}</div>
-          <p class="muted center">${r.done ? 'Atividade concluída!' : `Tentativa ${r.tentativas}/${r.maxTentativas} · melhor nota ${r.melhor}/${T} · ${r.points} pts. Troque as fotos e tente de novo.`}</p>
+          <div class="${provaGrid} mini">${r.prova.map((x) => `<div class="pc ${x.ok ? 'right' : 'wrong'}" style="padding:6px">${foto(x.pk, x.fundo, `<span class="tag">${TIPO_E[x.palpite] || ''} ${esc(x.palpite)}</span>`)}<div class="nm">${x.ok ? '✅' : '❌'} ${esc(x.nome)}<br><span class="muted">${motivo(x)}</span></div></div>`).join('')}</div>
+          <p class="muted center">${r.done ? `${n2 ? 'Nível 2 concluído!' : 'Nível 1 concluído!'} Total no Treinador: ${r.points} pts.` : `Tentativa ${r.tentativas}/${r.maxTentativas} · melhor nota ${r.melhor}/${T} · ${r.points} pts. Troque as fotos e tente de novo.`}</p>
           ${r.done ? '' : '<div class="btnrow"><button class="btn ghost" id="stop">Encerrar com esta nota</button></div>'}
         </div>`;
-      document.getElementById('out').scrollIntoView({ behavior: 'smooth', block: 'start' });
-      if (r.done) { playing(''); later('treino', 10000); }
-      else document.getElementById('stop').onclick = async () => { try { await api('treino_done'); playing(''); waitDone('treino'); } catch {} };
+      out.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (r.done) fim(out, r);
+      else document.getElementById('stop').onclick = async () => {
+        try { const x = await api('treino_done', { nivel: d.nivel || 1 }); document.getElementById('stop').parentElement.remove(); train.disabled = true; app.querySelectorAll('.pick').forEach((el) => { el.onclick = null; }); fim(out, x); } catch {}
+      };
       prev = null; app.querySelectorAll('#prev .chip').forEach((x) => x.classList.remove('on')); upd();
+      if (r.done) train.disabled = true;
     } catch (e) { if (isMsg(e)) document.getElementById('out').innerHTML = `<div class="fb no">${esc(e.message)}</div>`; upd(); }
   };
 }
 
 // ---------- 5) Auditoria relâmpago ----------
-async function runAuditoria() {
+let auditLog = [];
+async function runAuditoria(arg) {
   wide(false);
+  const continuing = arg === true;
   let n; try { n = await api('audit_next'); } catch { return; }
-  if (n.done) { playing(''); return waitDone('auditoria'); }
+  if (n.done) { playing(''); return continuing ? showAuditResumo() : waitDone('auditoria'); }
+  if (!continuing || n.index === 0) auditLog = auditLog.filter((x) => x.i < n.index);
   const E = ['✂️', '👥', '🧠'];
   const limit = n.limitMs || 15000;
   app.innerHTML = `
@@ -457,13 +501,28 @@ async function runAuditoria() {
       const r = await api('audit_answer', { choice });
       const btns = app.querySelectorAll('#opts button'); btns[r.correctIndex].classList.add('correct'); if (!r.correct && choice >= 0) btns[choice].classList.add('wrong');
       addScore(r.points);
+      auditLog.push({ i: n.index, q: n.q, opts: n.opts, choice, correct: r.correct, correctIndex: r.correctIndex, why: r.why, points: r.points, timedOut: choice < 0 || r.timedOut });
       document.getElementById('fb').innerHTML = r.correct ? `<div class="fb ok">✅ Isso! +${r.points} pontos<br><span class="n">${esc(r.why)}</span></div>` : `<div class="fb no">${choice < 0 || r.timedOut ? '⏱️ Tempo esgotado.' : '❌ Não foi dessa vez.'}<br><span class="n">${esc(r.why)}</span></div>`;
-      setTimeout(() => { if (curStage === 'auditoria') runAuditoria(); }, 3600);
+      setTimeout(() => { if (curStage === 'auditoria') runAuditoria(true); }, 3600);
     } catch {}
   };
   app.querySelectorAll('#opts button').forEach((b) => b.onclick = () => send(Number(b.dataset.i)));
   const bar = document.getElementById('bar'); const ms = n.remainingMs; const t0 = Date.now();
   clearTimer(); timer = setInterval(() => { const left = Math.max(0, ms - (Date.now() - t0)); bar.style.width = (left / limit * 100) + '%'; if (left <= 0) { clearTimer(); send(-1); } }, 100);
+}
+// resumo dos 6 casos: a pessoa revisa o que acertou e errou
+function showAuditResumo() {
+  const E = ['✂️', '👥', '🧠'];
+  const log = [...auditLog].sort((a, b) => a.i - b.i);
+  const ok = log.filter((x) => x.correct).length, pts = log.reduce((s, x) => s + x.points, 0);
+  app.innerHTML = `
+    <div class="head"><div class="icon">🕵️</div><div><div class="kicker">Atividade 5 · Auditoria relâmpago</div><h2>Auditoria concluída: ${ok} de ${log.length} diagnósticos certos</h2><p>+${pts} pontos nesta atividade. Revise os casos abaixo.</p></div></div>
+    <div class="plist">${log.map((x) => `<div class="box" style="border-color:${x.correct ? 'rgba(86,230,149,.6)' : 'rgba(255,107,122,.6)'}">
+      <p style="color:var(--ink);font-weight:600">${x.correct ? '✅' : '❌'} ${esc(x.q)}</p>
+      <p style="font-size:14.5px"><b>Resposta:</b> ${E[x.correctIndex]} ${esc(x.opts[x.correctIndex])}${x.correct ? '' : x.timedOut ? ' · você não respondeu a tempo' : ` · você marcou ${E[x.choice]} ${esc(x.opts[x.choice])}`}</p>
+      <p class="muted" style="text-align:left">${esc(x.why)}</p></div>`).join('')}</div>
+    ${readHint()}`;
+  later('auditoria');
 }
 
 // ---------- 6) Plano de dados ----------
@@ -496,8 +555,8 @@ function showPlano(d) {
         if (f.escolhida) { b.classList.add(f.boa ? 'good' : 'bad'); if (!f.boa) b.querySelector('.why').textContent = f.por; }
         else if (f.boa) b.classList.add('good');
       });
-      fb.innerHTML = `<div class="fb ok">📌 Plano enviado! ${r.boas} de ${d.escolher} ações fortes · +${r.points} pontos</div><p class="muted center">Em verde: as ações que realmente protegem a IA. Veja o mural na tela da professora.</p>`;
-      later('plano', 12000);
+      fb.innerHTML = `<div class="fb ok">📌 Plano enviado! ${r.boas} de ${d.escolher} ações fortes · +${r.points} pontos</div><p class="muted center">Em verde: as ações que realmente protegem a IA. Veja o mural na tela da professora.</p>${readHint()}`;
+      later('plano');
     } catch (e) { if (isMsg(e)) fb.innerHTML = `<div class="fb no">${esc(e.message)}</div>`; }
   };
 }
@@ -516,7 +575,14 @@ async function showFinal() {
 
 // ---------- polling ----------
 async function poll() {
-  try { const r = await fetch('/api/state'); const s = await r.json(); if (me && (s.seq !== lastSeq || s.stage !== curStage)) { lastSeq = s.seq; route(s.stage); } } catch {}
+  try {
+    const r = await fetch('/api/state'); const s = await r.json();
+    if (me && s.stage === curStage && s.seq !== lastSeq && ORDER.some((o) => o[0] === s.stage)) {
+      // mesma etapa, prazo mudou (+30s): só atualiza o relógio, sem perder o que a pessoa marcou
+      lastSeq = s.seq;
+      if (s.deadline && (app.dataset.playing === s.stage || fbStage === s.stage)) { stageChip(s.deadline - s.now, s.stage); scheduleWait(); }
+    } else if (me && (s.seq !== lastSeq || s.stage !== curStage)) { lastSeq = s.seq; route(s.stage); }
+  } catch {}
   setTimeout(poll, 2300 + Math.random() * 900);
 }
 paintSteps('lobby');

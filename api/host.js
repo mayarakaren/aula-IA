@@ -34,7 +34,8 @@ module.exports = async (req, res) => {
       const respostas = ps.filter((p) => p.pesquisa.norteadora).sort((a, b) => (b.pesquisa.at || 0) - (a.pesquisa.at || 0)).slice(0, 40).map((p) => ({ nick: p.nick, text: p.pesquisa.norteadora }));
       // 4) Treinador
       const tr = ps.filter((p) => p.treino.tentativas > 0); const tot = C.TREINO.teste.length;
-      const treino = { jogaram: tr.length, perfeitos: tr.filter((p) => p.treino.melhor === tot).length, melhorMedia: avg(tr.map((p) => p.treino.melhor)), tentativasMedia: avg(tr.map((p) => p.treino.tentativas)), previram: tr.filter((p) => p.treino.previu).length, total: tot };
+      const treino = { jogaram: tr.length, perfeitos: tr.filter((p) => p.treino.melhor === tot).length, melhorMedia: avg(tr.map((p) => p.treino.melhor)), tentativasMedia: avg(tr.map((p) => p.treino.tentativas)), previram: tr.filter((p) => p.treino.previu).length, total: tot,
+        nivel2: tr.filter((p) => p.treino.n2).length, nivel2Perfeitos: tr.filter((p) => p.treino.n2 && p.treino.n2.melhor === C.TREINO2.teste.length).length, total2: C.TREINO2.teste.length };
       // 6) Plano de dados
       const pl = ps.filter((p) => p.plano.done);
       const plano = {

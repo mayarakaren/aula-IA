@@ -44,12 +44,20 @@ async function player(i) {
   // 4) Treinador
   await waitFor('treino'); const t = await play('enter', { stage: 'treino' });
   const ids = t.pool.map((c) => c.id);
-  const bom = ['t1', 't2', 't4', 't7', 't8', 't10'];
+  const bom = ['t1', 't2', 't4', 't7', 't8', 't10']; let lib2 = false;
   for (let k = 0; k < 3; k++) {
     await sleep(rnd(4000, 12000) * SPEED);
     const escolha = k === 2 || Math.random() < 0.3 ? bom : [...ids].sort(() => Math.random() - 0.5).slice(0, 6);
     const r = await play('treino_train', { ids: escolha, previsao: Math.floor(Math.random() * 7) });
-    if (r.done) break;
+    if (r.done) { lib2 = !!r.nivel2; break; }
+  }
+  if (lib2) { // nível 2: quem terminou com tempo sobrando
+    const t2 = await play('enter', { stage: 'treino' }); const ids2 = (t2.pool || []).map((c) => c.id);
+    for (let k = 0; k < 2; k++) {
+      await sleep(rnd(3000, 9000) * SPEED);
+      const r2 = await play('treino_train', { nivel: 2, ids: k === 1 ? ['u3', 'u4', 'u7', 'u8'] : [...ids2].sort(() => Math.random() - 0.5).slice(0, 4), previsao: Math.floor(Math.random() * 5) });
+      if (r2.done) break;
+    }
   }
   // 5) Auditoria
   await waitFor('auditoria'); const c = await play('enter', { stage: 'auditoria' });
