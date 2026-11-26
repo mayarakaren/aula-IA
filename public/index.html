@@ -5,106 +5,137 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Da API à IA · Aula</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="/pele.js"></script>
 <style>
-  :root { --bg:#0e1120; --card:#161a2e; --card2:#1d2240; --line:#2c3358; --ink:#eef0fb; --soft:#b5bbdc; --mute:#8189b3; --acc:#8b7cff; --acc2:#5b8cff; --ok:#3dd6a5; --no:#ff6b81; --warn:#ffc65c; }
+  :root { --ink:#f7f0ff; --soft:#e4d6fb; --mute:#b9a0e6; --card:rgba(26,12,52,.9); --card2:rgba(56,30,104,.55); --deep2:rgba(14,6,32,.7); --line:rgba(185,138,255,.3);
+    --purple:#b98aff; --deep:#7a3fe0; --pink:#ff7ab8; --gold:#ffd166; --ok:#56e695; --no:#ff6b7a; }
   * { box-sizing:border-box; }
   html, body { margin:0; min-height:100%; }
-  body { font-family:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif; color:var(--ink); min-height:100vh; display:flex; align-items:flex-start; justify-content:center; padding:18px 16px;
-    padding-top:calc(18px + env(safe-area-inset-top,0px)); padding-bottom:calc(24px + env(safe-area-inset-bottom,0px));
-    background:radial-gradient(1200px 600px at 10% -10%,rgba(139,124,255,.18),transparent 60%),radial-gradient(900px 500px at 110% 10%,rgba(91,140,255,.14),transparent 60%),var(--bg); }
-  .wrap { width:100%; max-width:760px; }
-  .wrap.wide { max-width:1060px; }
-  .topbar { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:12px; font-size:13px; font-weight:600; }
-  .badge { background:var(--card); border:1px solid var(--line); border-radius:999px; padding:6px 14px; max-width:42%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--soft); }
-  .badge.score { color:var(--warn); border-color:rgba(255,198,92,.45); }
-  .dchip { font-weight:800; font-size:14px; padding:5px 14px; border-radius:999px; background:var(--card); border:1px solid var(--acc); color:#d9d4ff; font-variant-numeric:tabular-nums; }
+  body { font-family:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif; color:var(--ink); min-height:100vh; display:flex; align-items:flex-start; justify-content:center; padding:22px 16px;
+    padding-top:calc(22px + env(safe-area-inset-top,0px)); padding-bottom:calc(30px + env(safe-area-inset-bottom,0px));
+    background:linear-gradient(rgba(18,8,38,.52),rgba(18,8,38,.66)),url('/img/fundo.jpg') center/cover fixed #1a0c36; }
+  .wrap { width:100%; max-width:800px; }
+  .wrap.wide { max-width:1100px; }
+  .topbar { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:14px; font-size:12.5px; font-weight:800; letter-spacing:.04em; }
+  .badge { background:var(--card); border:1px solid var(--line); border-radius:999px; padding:7px 15px; max-width:42%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:#e6d4ff; backdrop-filter:blur(6px); }
+  .badge.score { color:var(--gold); border-color:rgba(255,209,102,.6); }
+  .dchip { font-weight:900; font-size:15px; padding:6px 15px; border-radius:999px; background:rgba(14,6,32,.85); border:2px solid var(--gold); color:var(--gold); font-variant-numeric:tabular-nums; }
   .dchip.low { color:var(--no); border-color:var(--no); animation:pulse .8s ease-in-out infinite; }
-  .steps { display:flex; gap:6px; justify-content:center; margin-bottom:14px; flex-wrap:wrap; }
-  .step { font-size:11.5px; font-weight:700; padding:5px 11px; border-radius:999px; background:var(--card); color:var(--mute); border:1px solid var(--line); }
-  .step.done { color:var(--ok); border-color:rgba(61,214,165,.35); }
-  .step.now { background:var(--acc); color:#fff; border-color:var(--acc); }
-  .card { background:var(--card); border:1px solid var(--line); border-radius:20px; padding:26px 24px; box-shadow:0 24px 60px rgba(0,0,0,.35); animation:fadeUp .35s ease-out; min-height:380px; display:flex; flex-direction:column; justify-content:center; }
-  .card > * + * { margin-top:14px; }
-  @keyframes fadeUp { from{opacity:0;transform:translateY(10px);} to{opacity:1;transform:none;} }
-  @keyframes pop { 0%{transform:scale(.85);opacity:0;} 100%{transform:scale(1);opacity:1;} }
-  @keyframes shake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-5px);} 75%{transform:translateX(5px);} }
+  .steps { display:flex; gap:7px; justify-content:center; margin-bottom:18px; flex-wrap:wrap; }
+  .step { font-size:11.5px; font-weight:800; padding:6px 12px; border-radius:999px; background:rgba(26,12,52,.6); color:#a58ad6; }
+  .step.done { background:rgba(86,230,149,.16); color:var(--ok); }
+  .step.now { background:linear-gradient(135deg,var(--deep),var(--pink)); color:#fff; box-shadow:0 0 14px rgba(255,122,184,.5); }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:26px; padding:34px 32px; box-shadow:0 24px 50px rgba(10,3,28,.55); backdrop-filter:blur(10px); animation:fadeUp .4s cubic-bezier(.21,1.02,.73,1); min-height:420px; display:flex; flex-direction:column; justify-content:center; }
+  .card > * + * { margin-top:22px; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(14px);} to{opacity:1;transform:none;} }
+  @keyframes pop { 0%{transform:scale(.8);opacity:0;} 60%{transform:scale(1.04);opacity:1;} 100%{transform:scale(1);} }
+  @keyframes shake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-6px);} 75%{transform:translateX(6px);} }
   @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:.6;} }
-  .kicker { font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--acc); }
-  h2 { font-size:23px; margin:4px 0 0; letter-spacing:-.01em; }
-  h3 { margin:0; font-size:15px; }
-  p { line-height:1.55; font-size:15.5px; color:var(--soft); margin:0; }
+  @keyframes floaty { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-6px);} }
+  .kicker { font-size:12px; font-weight:800; letter-spacing:.09em; text-transform:uppercase; color:var(--purple); }
+  h2 { font-size:25px; margin:6px 0 0; letter-spacing:-.01em; line-height:1.2; }
+  h3 { margin:0; font-size:16px; color:var(--gold); }
+  p { line-height:1.6; font-size:16px; color:var(--soft); margin:0; }
   b, strong { color:var(--ink); }
-  .muted { color:var(--mute); font-size:13px; }
+  .muted { color:var(--mute); font-size:13.5px; }
   .center { text-align:center; }
-  .btn { display:block; margin:0 auto; background:var(--acc); color:#fff; border:none; border-radius:12px; padding:13px 24px; font:inherit; font-size:15.5px; font-weight:700; cursor:pointer; transition:transform .1s, filter .1s; }
-  .btn:hover { filter:brightness(1.08); } .btn:active { transform:scale(.98); } .btn:disabled { opacity:.4; cursor:default; filter:none; }
-  .btn.ghost { background:transparent; border:1px solid var(--line); color:var(--soft); padding:10px 16px; font-size:14px; }
-  .btnrow { display:flex; gap:12px; justify-content:center; align-items:center; flex-wrap:wrap; } .btnrow .btn { margin:0; }
-  .input, textarea { width:100%; min-width:0; padding:12px 14px; border-radius:12px; border:1px solid var(--line); background:#0f1326; color:var(--ink); font:inherit; font-size:15.5px; }
-  textarea { min-height:96px; resize:vertical; line-height:1.45; }
-  .input:focus, textarea:focus { outline:none; border-color:var(--acc); }
-  .row { display:flex; gap:10px; } .row .btn { white-space:nowrap; margin:0; padding:12px 18px; }
+  .btn { display:block; margin:0 auto; background:linear-gradient(135deg,var(--deep),var(--pink)); color:#fff; border:none; border-radius:16px; padding:15px 28px; font:inherit; font-size:16px; font-weight:800; cursor:pointer; box-shadow:0 10px 24px rgba(165,107,255,.38); transition:transform .12s, filter .12s; }
+  .btn:hover { transform:translateY(-2px); } .btn:active { transform:scale(.98); } .btn:disabled { opacity:.4; cursor:default; transform:none; box-shadow:none; }
+  .btn.ghost { background:transparent; border:2px solid var(--purple); box-shadow:none; color:#e9dcff; padding:11px 18px; font-size:14.5px; }
+  .btnrow { display:flex; gap:14px; justify-content:center; align-items:center; flex-wrap:wrap; } .btnrow .btn { margin:0; }
+  .input, textarea { width:100%; min-width:0; padding:14px 16px; border-radius:14px; border:2px solid var(--line); background:var(--deep2); color:var(--ink); font:inherit; font-size:16px; }
+  textarea { min-height:104px; resize:vertical; line-height:1.5; }
+  .input:focus, textarea:focus { outline:none; border-color:var(--purple); }
+  .row { display:flex; gap:10px; } .row .btn { white-space:nowrap; margin:0; padding:13px 20px; }
   .err { color:var(--no); font-size:14px; text-align:center; min-height:18px; }
-  .link-btn { display:inline-flex; gap:8px; align-items:center; background:var(--card2); color:var(--ink); border:1px solid var(--line); border-radius:12px; padding:10px 16px; font-weight:700; text-decoration:none; font-size:14.5px; }
-  .fb { padding:11px 14px; border-radius:12px; font-size:14px; font-weight:600; animation:pop .25s; line-height:1.45; }
-  .fb.ok { background:rgba(61,214,165,.1); color:var(--ok); border:1px solid rgba(61,214,165,.4); } .fb.no { background:rgba(255,107,129,.1); color:var(--no); border:1px solid rgba(255,107,129,.4); }
-  .fb.info { background:rgba(139,124,255,.1); color:#d1cbff; border:1px solid rgba(139,124,255,.4); }
-  .fb span.n { font-weight:400; color:var(--soft); }
-  .box { background:var(--card2); border:1px solid var(--line); border-radius:14px; padding:14px; } .box > * + * { margin-top:10px; }
+  .link-btn { display:inline-flex; gap:8px; align-items:center; background:var(--card2); color:#efe4ff; border:2px solid var(--purple); border-radius:14px; padding:11px 17px; font-weight:800; text-decoration:none; font-size:14.5px; }
+  .fb { padding:13px 16px; border-radius:14px; font-size:14.5px; font-weight:700; animation:pop .3s; line-height:1.5; }
+  .fb.ok { background:rgba(86,230,149,.13); color:var(--ok); border:1px solid rgba(86,230,149,.6); } .fb.no { background:rgba(255,107,122,.13); color:var(--no); border:1px solid rgba(255,107,122,.6); }
+  .fb.info { background:rgba(255,209,102,.09); color:var(--gold); border:1px solid rgba(255,209,102,.55); }
+  .fb span.n { font-weight:500; color:var(--soft); } .fb b { color:inherit; }
+  #fb > * + *, #nfb > * + *, .fbz > * + * { margin-top:14px; }
+  .box { background:var(--card2); border:1px solid var(--line); border-radius:18px; padding:20px; } .box > * + * { margin-top:14px; }
+  .head { display:flex; gap:18px; align-items:center; } .head .icon { margin:0; flex:none; } .head p { font-size:15.5px; margin-top:6px; }
+  .icon { width:60px; height:60px; border-radius:18px; display:flex; align-items:center; justify-content:center; font-size:30px; background:linear-gradient(135deg,var(--deep),var(--pink)); margin:0 auto; box-shadow:0 10px 22px rgba(165,107,255,.35); }
+  /* como funciona */
+  .how { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+  .how .st { background:var(--deep2); border:1px solid var(--line); border-radius:16px; padding:14px 16px; display:flex; gap:12px; align-items:flex-start; font-size:14.5px; line-height:1.5; color:var(--soft); }
+  .how .n { flex:none; width:28px; height:28px; border-radius:50%; background:linear-gradient(135deg,var(--deep),var(--pink)); color:#fff; font-weight:900; font-size:14px; display:flex; align-items:center; justify-content:center; }
+  .art { display:flex; gap:12px; align-items:flex-start; background:rgba(255,209,102,.07); border-left:4px solid var(--gold); border-radius:12px; padding:13px 16px; font-size:14.5px; line-height:1.55; color:var(--soft); }
+  .art .ic { font-size:20px; line-height:1.2; }
   /* grade de fotos */
-  .grid3 { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
-  .grid4 { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
-  .grid6 { display:grid; grid-template-columns:repeat(6,1fr); gap:8px; }
-  .pc { background:var(--card2); border:1px solid var(--line); border-radius:14px; padding:8px; display:flex; flex-direction:column; gap:7px; }
-  .pc.right { border-color:var(--ok); box-shadow:0 0 0 1px var(--ok) inset; } .pc.wrong { border-color:var(--no); box-shadow:0 0 0 1px var(--no) inset; }
-  .ph { position:relative; aspect-ratio:4/3; border-radius:10px; overflow:hidden; background:#0b0e1c; }
-  .ph img.real { width:100%; height:100%; object-fit:cover; display:block; }
-  .tag { position:absolute; top:6px; left:6px; font-size:11.5px; font-weight:700; padding:3px 8px; border-radius:8px; color:#fff; background:rgba(10,12,26,.82); backdrop-filter:blur(4px); }
-  .tag.r { left:auto; right:6px; }
-  .cap { font-size:12.5px; color:var(--soft); text-align:center; } .cap b { color:var(--ink); }
-  .q { font-size:11.5px; font-weight:700; color:var(--mute); text-transform:uppercase; letter-spacing:.05em; }
-  .seg { display:flex; gap:5px; } .seg button { flex:1; border:1px solid var(--line); background:#0f1326; color:var(--soft); border-radius:9px; padding:7px 4px; font:inherit; font-weight:700; font-size:12.5px; cursor:pointer; }
-  .seg button.on { background:rgba(139,124,255,.2); border-color:var(--acc); color:#fff; }
-  .seg button.on.y { background:rgba(61,214,165,.16); border-color:var(--ok); color:var(--ok); } .seg button.on.n { background:rgba(255,107,129,.16); border-color:var(--no); color:var(--no); }
-  .chips { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; }
-  .chip { background:var(--card2); border:1px solid var(--line); color:var(--soft); border-radius:999px; padding:9px 15px; font:inherit; font-size:14px; font-weight:600; cursor:pointer; }
-  .chip.on { background:var(--acc); border-color:var(--acc); color:#fff; }
-  .chip.good { border-color:var(--ok); color:var(--ok); background:rgba(61,214,165,.12); } .chip.bad { border-color:var(--no); color:var(--no); background:rgba(255,107,129,.12); }
+  .grid3 { display:grid; grid-template-columns:repeat(3,1fr); gap:18px; }
+  .grid4 { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
+  .grid6 { display:grid; grid-template-columns:repeat(6,1fr); gap:10px; }
+  .pc { background:var(--card2); border:2px solid transparent; border-radius:18px; padding:10px; display:flex; flex-direction:column; gap:9px; }
+  .pc.right { border-color:var(--ok); } .pc.wrong { border-color:var(--no); }
+  .ph { position:relative; aspect-ratio:4/3; border-radius:12px; overflow:hidden; background:#0b0e1c; }
+  .ph svg.pele { width:100%; height:100%; display:block; }
+  .tag { position:absolute; top:7px; left:7px; font-size:12px; font-weight:800; padding:4px 9px; border-radius:9px; color:#fff; background:rgba(14,6,32,.85); backdrop-filter:blur(4px); }
+  .tag.r { left:auto; right:7px; }
+  .tag.sus { background:rgba(180,40,70,.9); } .tag.ben { background:rgba(30,120,80,.9); }
+  .cap { font-size:13.5px; color:var(--soft); text-align:center; } .cap b { color:var(--ink); }
+  .q { font-size:11.5px; font-weight:800; color:var(--mute); text-transform:uppercase; letter-spacing:.06em; }
+  .seg { display:flex; gap:6px; } .seg button { flex:1; border:2px solid var(--line); background:var(--deep2); color:var(--soft); border-radius:11px; padding:8px 4px; font:inherit; font-weight:800; font-size:13px; cursor:pointer; }
+  .seg button.on { background:rgba(185,138,255,.22); border-color:var(--purple); color:#fff; }
+  .seg button.on.y { background:rgba(86,230,149,.18); border-color:var(--ok); color:var(--ok); } .seg button.on.n { background:rgba(255,107,122,.18); border-color:var(--no); color:var(--no); }
+  .chips { display:flex; gap:10px; flex-wrap:wrap; justify-content:center; }
+  .chip { background:var(--card2); border:2px solid var(--line); color:#efe4ff; border-radius:999px; padding:10px 17px; font:inherit; font-size:14.5px; font-weight:700; cursor:pointer; }
+  .chip.on { background:linear-gradient(135deg,var(--deep),var(--pink)); border-color:transparent; color:#fff; }
+  .chip.good { border-color:var(--ok); color:var(--ok); background:rgba(86,230,149,.12); } .chip.bad { border-color:var(--no); color:var(--no); background:rgba(255,107,122,.12); }
+  .legend { display:flex; gap:16px; justify-content:center; font-size:13px; color:var(--mute); flex-wrap:wrap; }
+  /* pesquisa */
+  .qmeta { display:flex; gap:8px; flex-wrap:wrap; }
+  .pill { font-size:12.5px; font-weight:700; border-radius:999px; padding:5px 11px; background:var(--deep2); border:1px solid var(--line); color:var(--soft); }
+  .pill.find { border-color:rgba(255,209,102,.55); color:var(--gold); } .pill.find code { font-family:inherit; font-weight:800; }
+  .qtext { color:var(--ink); font-size:16.5px; font-weight:600; }
   /* Pokémon (treinador) */
-  .foto { position:relative; aspect-ratio:4/3; border-radius:10px; background-size:cover; background-position:center; overflow:hidden; }
+  .foto { position:relative; aspect-ratio:4/3; border-radius:12px; background-size:cover; background-position:center; overflow:hidden; }
   .foto img { position:absolute; left:50%; bottom:7%; transform:translateX(-50%); height:70%; max-width:85%; object-fit:contain; filter:drop-shadow(0 6px 6px rgba(0,0,0,.35)); }
-  .t-Fogo { background:#d9622b !important; } .t-Água { background:#3772d6 !important; } .t-Planta { background:#3a8f42 !important; }
-  .pick { cursor:pointer; transition:transform .1s; } .pick:hover { transform:translateY(-2px); }
-  .pick.on { border-color:var(--warn); box-shadow:0 0 0 2px var(--warn) inset; }
-  .nm { font-weight:700; font-size:13px; text-align:center; }
-  .counter { font-weight:800; color:var(--warn); }
-  .regras { font-family:ui-monospace,Consolas,monospace; font-size:13.5px; background:#0b0e1c; border:1px solid var(--line); border-radius:10px; padding:9px 12px; color:var(--warn); }
-  .mini .foto { aspect-ratio:1; } .mini .nm { font-size:11px; }
+  .t-Fogo { background:#e8692b !important; } .t-Água { background:#3d7fe0 !important; } .t-Planta { background:#3f9e45 !important; }
+  .pick { cursor:pointer; position:relative; transition:transform .1s; } .pick:hover { transform:translateY(-2px); }
+  .pick.on { border-color:var(--gold); box-shadow:0 0 0 2px var(--gold) inset; }
+  .pick.on::after { content:'✓'; position:absolute; top:14px; right:16px; width:26px; height:26px; border-radius:50%; background:var(--gold); color:#2b1a00; font-weight:900; display:flex; align-items:center; justify-content:center; }
+  .nm { font-weight:800; font-size:13.5px; text-align:center; } .nm .muted { font-weight:600; font-size:12px; }
+  .counter { font-weight:900; color:var(--gold); }
+  .regras { font-family:ui-monospace,Consolas,monospace; font-size:14px; background:rgba(10,4,26,.85); border:1px solid var(--line); border-radius:12px; padding:10px 14px; color:var(--gold); }
+  .grid4.pool3 { grid-template-columns:repeat(3,1fr); }
+  .mini .foto { aspect-ratio:1; } .mini .nm { font-size:11.5px; }
+  .two { display:grid; grid-template-columns:1.25fr 1fr; gap:18px; align-items:start; }
+  .brain { position:sticky; top:12px; background:linear-gradient(160deg,rgba(122,63,224,.32),rgba(255,122,184,.14)); border:1px solid var(--purple); border-radius:20px; padding:18px; } .brain > * + * { margin-top:14px; }
+  .meter { display:grid; grid-template-columns:86px 1fr 46px; gap:10px; align-items:center; font-size:14px; font-weight:700; }
+  .meter .t { height:14px; border-radius:8px; background:var(--deep2); overflow:hidden; } .meter .t i { display:block; height:100%; border-radius:8px; background:var(--ok); transition:width .25s, background .25s; }
+  .meter.hot .t i { background:var(--no); } .meter b { text-align:right; font-variant-numeric:tabular-nums; }
+  .types { display:flex; gap:8px; } .types span { flex:1; text-align:center; border-radius:12px; padding:7px 4px; font-size:13px; font-weight:800; background:var(--deep2); border:1px dashed var(--line); color:var(--mute); }
+  .types span.on { border-style:solid; border-color:var(--ok); color:var(--ok); background:rgba(86,230,149,.1); }
+  .verdict { border-radius:14px; padding:12px 14px; font-weight:800; font-size:14.5px; line-height:1.45; background:var(--deep2); border:1px solid var(--line); }
+  .verdict.bad { border-color:var(--no); color:var(--no); } .verdict.good { border-color:var(--ok); color:var(--ok); }
+  .rules3 { display:grid; gap:10px; } .rules3 div { display:flex; gap:12px; align-items:flex-start; font-size:14.5px; line-height:1.5; color:var(--soft); }
+  .rules3 .e { flex:none; font-size:20px; }
   /* auditoria */
-  .timer-bar { height:8px; background:#0b0e1c; border-radius:8px; overflow:hidden; } .timer-fill { height:100%; width:100%; background:linear-gradient(90deg,var(--acc),var(--acc2)); }
-  .situation { background:var(--card2); border:1px solid var(--line); border-left:4px solid var(--acc); border-radius:12px; padding:18px; font-size:17.5px; line-height:1.5; color:var(--ink); }
-  .three { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
-  .opt { border:1px solid var(--line); background:var(--card2); border-radius:14px; padding:16px 10px; color:var(--ink); font:inherit; font-weight:700; font-size:15px; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:6px; }
-  .opt .e { font-size:24px; } .opt:hover { border-color:var(--acc); }
-  .opt.correct { border-color:var(--ok); background:rgba(61,214,165,.14); animation:pop .3s; } .opt.wrong { border-color:var(--no); opacity:.6; }
+  .timer-bar { height:12px; background:var(--deep2); border-radius:8px; overflow:hidden; } .timer-fill { height:100%; width:100%; background:linear-gradient(90deg,var(--gold),var(--pink)); }
+  .situation { background:var(--card2); border:2px dashed var(--purple); border-radius:18px; padding:24px; font-size:18.5px; line-height:1.55; color:var(--ink); text-align:center; }
+  .three { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+  .opt { border:2px solid var(--line); background:var(--card2); border-radius:16px; padding:18px 10px; color:var(--ink); font:inherit; font-weight:800; font-size:15px; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:8px; }
+  .opt .e { font-size:28px; } .opt:hover { border-color:var(--purple); }
+  .opt.correct { border-color:var(--ok); background:rgba(86,230,149,.14); animation:pop .3s; } .opt.wrong { border-color:var(--no); opacity:.6; }
   /* plano */
-  .plist { display:grid; gap:8px; }
-  .pitem { display:flex; gap:10px; align-items:flex-start; text-align:left; background:var(--card2); border:1px solid var(--line); border-radius:12px; padding:11px 13px; font:inherit; color:var(--soft); font-size:14.5px; cursor:pointer; line-height:1.4; }
-  .pitem .ck { flex:none; width:20px; height:20px; border-radius:6px; border:2px solid var(--line); margin-top:1px; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:900; }
-  .pitem.on { border-color:var(--acc); color:var(--ink); } .pitem.on .ck { background:var(--acc); border-color:var(--acc); color:#fff; }
-  .pitem.good { border-color:var(--ok); } .pitem.bad { border-color:var(--no); } .pitem .why { display:block; font-size:12.5px; color:var(--no); margin-top:3px; }
+  .plist { display:grid; gap:10px; }
+  .pitem { display:flex; gap:12px; align-items:flex-start; text-align:left; background:var(--card2); border:2px solid var(--line); border-radius:14px; padding:13px 15px; font:inherit; color:var(--soft); font-size:15px; cursor:pointer; line-height:1.45; }
+  .pitem .ck { flex:none; width:22px; height:22px; border-radius:7px; border:2px solid var(--line); margin-top:1px; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:900; }
+  .pitem.on { border-color:var(--purple); color:var(--ink); } .pitem.on .ck { background:var(--purple); border-color:var(--purple); color:#fff; }
+  .pitem.good { border-color:var(--ok); } .pitem.bad { border-color:var(--no); } .pitem .why { display:block; font-size:13px; color:var(--no); margin-top:4px; }
   /* ranking */
-  .rk { background:var(--card2); border:1px solid var(--line); border-radius:14px; padding:12px 16px; max-width:420px; margin-left:auto; margin-right:auto; width:100%; }
-  .rk h4 { margin:0 0 6px; font-size:12px; letter-spacing:.07em; text-transform:uppercase; color:var(--mute); text-align:center; }
-  .rk .r { display:flex; justify-content:space-between; gap:10px; padding:3px 0; font-size:14.5px; } .rk .r b { color:var(--warn); }
-  .rk .me { margin-top:8px; padding-top:8px; border-top:1px dashed var(--line); text-align:center; font-weight:700; color:var(--warn); }
-  .big { font-size:52px; font-weight:800; color:var(--warn); text-align:center; animation:pop .4s; }
-  .icon { width:54px; height:54px; border-radius:16px; display:flex; align-items:center; justify-content:center; font-size:28px; background:linear-gradient(135deg,var(--acc),var(--acc2)); margin:0 auto; }
-  .head { display:flex; gap:14px; align-items:center; } .head .icon { margin:0; flex:none; } .head p { font-size:14.5px; margin-top:4px; }
-  .legend { display:flex; gap:14px; justify-content:center; font-size:12.5px; color:var(--mute); flex-wrap:wrap; }
-  @media (max-width:860px){ .grid3{grid-template-columns:repeat(2,1fr);} .grid6{grid-template-columns:repeat(3,1fr);} }
-  @media (max-width:640px){ .grid4{grid-template-columns:repeat(2,1fr);} .three{grid-template-columns:1fr;} .card{padding:20px 14px;} .head{align-items:flex-start;} .badge{max-width:34%;} }
+  .rk { background:var(--card2); border:1px solid var(--line); border-radius:18px; padding:16px 20px; max-width:440px; margin-left:auto; margin-right:auto; width:100%; }
+  .rk h4 { margin:0 0 8px; font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--mute); text-align:center; }
+  .rk .r { display:flex; justify-content:space-between; gap:10px; padding:4px 0; font-size:15px; } .rk .r b { color:var(--gold); }
+  .rk .me { margin-top:10px; padding-top:10px; border-top:1px dashed var(--line); text-align:center; font-weight:800; color:var(--gold); }
+  .big { font-size:56px; font-weight:900; color:var(--gold); text-align:center; animation:pop .4s; }
+  .peek { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; max-width:420px; margin-left:auto; margin-right:auto; }
+  .peek .ph { border:2px solid var(--line); animation:floaty 3.4s ease-in-out infinite; } .peek .ph:nth-child(2) { animation-delay:.5s; } .peek .ph:nth-child(3) { animation-delay:1s; }
+  @media (max-width:900px){ .grid3{grid-template-columns:repeat(2,1fr);} .grid6{grid-template-columns:repeat(3,1fr);} .two{grid-template-columns:1fr;} .brain{position:static;} }
+  @media (max-width:640px){ .grid4, .grid4.pool3{grid-template-columns:repeat(2,1fr);} .three, .how{grid-template-columns:1fr;} .card{padding:24px 16px;} .card > * + * { margin-top:18px; } .head{align-items:flex-start;} .badge{max-width:34%;} .grid3{gap:12px;} h2{font-size:22px;} }
   @media (prefers-reduced-motion:reduce){ *{animation:none !important;} }
 </style>
 </head>
@@ -120,6 +151,7 @@ let me = JSON.parse(localStorage.getItem('aula_ia2_me') || 'null');
 let curStage = null, lastSeq = -1, timer = null, stageTimer = null, score = 0, routing = 0, lastIdx = -1;
 const ORDER = [['detetive', '1 · Detetive'], ['pesquisa', '3 · Pesquisa'], ['treino', '4 · Treinador'], ['auditoria', '5 · Auditoria'], ['plano', '6 · Plano de dados']];
 const TIPO_E = { 'Fogo': '🔥', 'Água': '💧', 'Planta': '🌿' };
+const TIPOS = ['Fogo', 'Água', 'Planta'];
 const FUNDO_N = { vulcao: 'vulcão', mar: 'mar', grama: 'grama' };
 
 const esc = (x) => String(x).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -131,6 +163,9 @@ const wide = (on) => document.getElementById('wrap').classList.toggle('wide', !!
 const foto = (pk, fundo, extra = '') => `<div class="foto" style="background-image:url('/img/bg-${fundo}.jpg')"><img src="/img/pk-${pk}.png" alt="${esc(pk)}">${extra}</div>`;
 const tipoTag = (t, cls = '') => `<span class="tag ${cls} t-${t}">${TIPO_E[t] || ''} ${t}</span>`;
 const isMsg = (e) => !['closed', 'reset'].includes(e.message);
+const how = (steps) => `<div class="how">${steps.map((s, i) => `<div class="st"><span class="n">${i + 1}</span><span>${s}</span></div>`).join('')}</div>`;
+const art = (html) => `<div class="art"><span class="ic">📄</span><span>${html}</span></div>`;
+const iaTag = (f) => `<span class="tag ${f.ia === 'Suspeita' ? 'sus' : 'ben'}">🤖 IA: ${esc(f.ia)} · ${f.conf}%</span>`;
 
 function paintSteps(stage) {
   const i = ORDER.findIndex((o) => o[0] === stage); if (i >= 0) lastIdx = i;
@@ -161,12 +196,13 @@ const playing = (stage) => { app.dataset.playing = stage; };
 const later = (stage, ms) => setTimeout(() => { if (curStage === stage) waitDone(stage); }, ms);
 
 // ---------- entrada ----------
+const PEEK = [{ id: 'j1', tom: 2, lesao: 'suspeita', regua: true }, { id: 'j2', tom: 5, lesao: 'benigna', regua: false }, { id: 'j3', tom: 3, lesao: 'benigna', regua: true }];
 function showJoin(msg) {
   clearTimer(); stageChip(null); wide(false); playing(''); document.getElementById('nickBadge').textContent = 'Aula'; paintSteps('lobby');
   app.innerHTML = `
-    <div class="icon">🧠</div>
     <div class="center"><div class="kicker">Da API à IA</div><h2>A IA só aprende o que os dados mostram</h2></div>
-    <p class="center">Escolha um apelido para entrar. Ele aparece no ranking da turma.</p>
+    <div class="peek">${PEEK.map((f) => `<div class="ph">${pele(f)}</div>`).join('')}</div>
+    <p class="center">Hoje você vai investigar uma IA que olha fotos de pele. Escolha um apelido para entrar: ele aparece no ranking da turma.</p>
     <input class="input" id="nick" maxlength="24" placeholder="Seu apelido" autocomplete="off">
     <div class="err" id="joinErr">${msg || ''}</div>
     <button class="btn" id="joinBtn">Entrar na aula</button>`;
@@ -226,16 +262,17 @@ function showDetetive(d) {
   wide(true);
   const marks = d.fotos.map(() => null), olhou = d.fotos.map(() => null); let regra = null;
   app.innerHTML = `
-    <div class="head"><div class="icon">🔎</div><div><div class="kicker">Atividade 1 · Analisar</div><h2>Detetive de dados</h2>
-      <p>Esta IA diz se a foto é de um <b>cão</b> ou de um <b>lobo</b>. Para cada foto: ela <b>acertou</b>? E ela decidiu olhando o <b>animal</b> ou o <b>fundo</b>?</p></div></div>
+    <div class="head"><div class="icon">🔎</div><div><div class="kicker">Atividade 1 · Analisar</div><h2>Detetive de dados: a IA das pintas</h2>
+      <p>Um hospital treinou uma IA para dizer se uma pinta na pele é <b>suspeita</b> (pode ser câncer) ou <b>benigna</b>. Nos testes do hospital ela acertou 95%. Será que ela aprendeu mesmo?</p></div></div>
+    ${how(['Compare o palpite da 🤖 <b>IA</b> com o 🩺 <b>laudo do dermatologista</b>: ela acertou?', 'Olhe a foto e responda: a IA decidiu olhando <b>a pinta</b> ou <b>outra coisa</b> fora dela?', 'No fim, descubra <b>a regra</b> que a IA aprendeu sozinha.'])}
     <div class="grid3">${d.fotos.map((f, i) => `
       <div class="pc" id="pc${i}">
-        <div class="ph"><img class="real" id="im${i}" src="/img/real/${f.id}.jpg" alt="${esc(f.legenda)}"><span class="tag">🤖 IA: ${f.ia} · ${f.conf}%</span></div>
-        <div class="cap">Na foto: <b>${esc(f.legenda)}</b></div>
+        <div class="ph" id="ph${i}">${pele(f)}${iaTag(f)}</div>
+        <div class="cap">🩺 Laudo do dermatologista: <b>${esc(f.real)}</b></div>
         <div class="q">A IA acertou?</div>
-        <div class="seg" data-k="m" data-i="${i}"><button class="y" data-v="1">Acertou</button><button class="n" data-v="0">Errou</button></div>
+        <div class="seg" data-k="m" data-i="${i}"><button class="y" data-v="1">✔ Acertou</button><button class="n" data-v="0">✖ Errou</button></div>
         <div class="q">Onde ela olhou?</div>
-        <div class="seg" data-k="o" data-i="${i}"><button data-v="animal">No animal</button><button data-v="fundo">No fundo</button></div>
+        <div class="seg" data-k="o" data-i="${i}"><button data-v="lesao">Na pinta</button><button data-v="fora">Fora da pinta</button></div>
       </div>`).join('')}</div>
     <div class="box"><h3>Qual regra a IA aprendeu sozinha?</h3><div class="chips" id="regras">${d.regras.map((r, i) => `<button class="chip" data-r="${i}">${esc(r)}</button>`).join('')}</div></div>
     <div id="fb"></div>
@@ -256,29 +293,38 @@ function showDetetive(d) {
       d.fotos.forEach((f, i) => {
         const ok = marks[i] === r.certo[i] && olhou[i] === r.olhouCerto[i];
         document.getElementById('pc' + i).classList.add(ok ? 'right' : 'wrong');
-        document.getElementById('im' + i).src = `/img/real/${f.id}-heat.jpg`;
+        document.getElementById('ph' + i).innerHTML = pele(f, { heat: r.olhouCerto[i] }) + iaTag(f);
       });
       app.querySelectorAll('#regras .chip').forEach((b) => { const k = Number(b.dataset.r); if (k === r.regraCerta) b.classList.add('good'); else if (k === regra) b.classList.add('bad'); });
       fb.innerHTML = `<div class="fb ok">+${r.points} pontos · acertou/errou: ${r.marcasOk}/${r.total} · onde olhou: ${r.olhouOk}/${r.total}</div>
-        <div class="fb ${r.regraOk ? 'ok' : 'info'}" style="margin-top:8px">🔥 As fotos agora mostram o <b>mapa de calor</b>: onde a IA olhou. ${r.regraOk ? 'Você descobriu o atalho: <b>neve = lobo</b>.' : 'Repare: o malamute tem orelha pontuda e pelo cinza, e a IA acertou. O que muda nas fotos em que ela erra? <b>A neve.</b>'}</div>
-        <div class="legend"><span>🔴 olhou muito</span><span>🔵 olhou pouco</span><span>(mapa simulado para a aula)</span></div>`;
-      later('detetive', 12000);
+        <div class="fb ${r.regraOk ? 'ok' : 'info'}">🔥 As fotos agora mostram o <b>mapa de calor</b>: onde a IA olhou. ${r.regraOk ? 'Você descobriu o atalho: <b>régua na foto = suspeita</b>.' : 'Repare: sempre que tem <b>régua</b>, a IA diz "suspeita", até na pinta benigna. E a pinta suspeita sem régua passou batido.'}
+        <br><span class="n">Por quê? No hospital, o médico só media com régua as pintas que já achava perigosas. A IA aprendeu a régua, não a pinta.</span></div>
+        <div class="legend"><span>🔴 olhou muito</span><span>🔵 olhou pouco</span><span>(ilustração e mapa simulados para a aula)</span></div>
+        ${art('<b>Ligação com o artigo:</b> as primeiras IAs de pele focaram em câncer de pele justamente porque as fotos eram fáceis de <b>padronizar</b> (p. 4). Foto padronizada demais vira terreno fértil para atalhos.')}`;
+      later('detetive', 15000);
     } catch (e) { if (isMsg(e)) fb.innerHTML = `<div class="fb no">${esc(e.message)}</div>`; }
   };
 }
 
 // ---------- 3) Pesquisa no artigo ----------
 function showPesquisa(d) {
+  wide(false);
   const state = { answered: [...d.answered], enviou: d.enviou };
   const check = () => { if (state.answered.every(Boolean) && state.enviou) { playing(''); later('pesquisa', 2500); } };
   app.innerHTML = `
-    <div class="head"><div class="icon">📄</div><div><div class="kicker">Atividade 3 · Pesquisa em artigo científico</div><h2>O que a pesquisa brasileira diz?</h2></div></div>
-    <div class="box"><p style="font-size:14px">${esc(d.citacao)}</p><div class="btnrow" style="justify-content:flex-start"><a class="link-btn" href="${d.url}" target="_blank" rel="noopener">📄 Abrir o artigo (PDF)</a><a class="link-btn" href="${d.doi}" target="_blank" rel="noopener">🔗 DOI</a></div></div>
-    <p><b>Parte 1 · Localize no texto</b> (as páginas estão indicadas)</p>
-    ${d.prompts.map((q, i) => `<div class="box" id="q${i}"><p style="color:var(--ink);font-size:15px">${i + 1}. ${esc(q.prompt)}</p><form class="row" data-i="${i}"><input class="input" maxlength="80" placeholder="Sua resposta" ${d.answered[i] ? 'disabled value="✅ respondida"' : ''}><button class="btn" ${d.answered[i] ? 'disabled' : ''}>Enviar</button></form><div class="fbz"></div></div>`).join('')}
+    <div class="head"><div class="icon">📄</div><div><div class="kicker">Atividade 3 · Pesquisa em artigo científico</div><h2>O que a pesquisa brasileira diz?</h2>
+      <p>Uma equipe da Unicamp revisou estudos de IA em doenças de pele. Vamos usar o artigo para entender <b>por que</b> a IA das pintas falharia no Brasil.</p></div></div>
+    <div class="box"><p style="font-size:14.5px">${esc(d.citacao)}</p><div class="btnrow" style="justify-content:flex-start"><a class="link-btn" href="${d.url}" target="_blank" rel="noopener">📄 Abrir o PDF</a><a class="link-btn" href="${d.site}" target="_blank" rel="noopener">🌐 Página do artigo</a></div></div>
+    <div class="art"><span class="ic">💡</span><span><b>Não deu tempo de ler tudo?</b> Abra o PDF e use a busca: <b>Ctrl+F</b> no computador, ou <b>⋮ → Localizar na página</b> no celular. Cada pergunta diz onde está a resposta e que palavra procurar.</span></div>
+    <p><b>Parte 1 · Localize no texto</b></p>
+    ${d.prompts.map((q, i) => `<div class="box" id="q${i}">
+      <p class="qtext">${i + 1}. ${esc(q.prompt)}</p>
+      <div class="qmeta"><span class="pill">📍 ${esc(q.onde)}</span><span class="pill find">🔍 procure: <code>${esc(q.busca)}</code></span></div>
+      <form class="row" data-i="${i}"><input class="input" maxlength="80" placeholder="Sua resposta" ${d.answered[i] ? 'disabled value="✅ respondida"' : ''}><button class="btn" ${d.answered[i] ? 'disabled' : ''}>Enviar</button></form><div class="fbz"></div></div>`).join('')}
     <p><b>Parte 2 · Pergunta norteadora</b> (vai para o mural da turma)</p>
-    <div class="box"><p style="color:var(--ink);font-size:15.5px;font-weight:600">${esc(d.norteadora)}</p>
-      <textarea id="nort" maxlength="400" placeholder="Use o que você leu no artigo..." ${d.enviou ? 'disabled' : ''}>${d.enviou ? '✅ resposta enviada' : ''}</textarea>
+    <div class="box"><p style="color:var(--ink);font-size:16px;font-weight:700">${esc(d.norteadora)}</p>
+      <p class="muted">Dica: junte as respostas da Parte 1. Quem estava nos dados? Quem ficou de fora?</p>
+      <textarea id="nort" maxlength="400" placeholder="Use o que você encontrou no artigo..." ${d.enviou ? 'disabled' : ''}>${d.enviou ? '✅ resposta enviada' : ''}</textarea>
       <div class="btnrow" style="justify-content:space-between"><span class="muted" id="nc">mínimo ${d.minNorteadora} caracteres</span><button class="btn" id="nsend" ${d.enviou ? 'disabled' : ''}>📌 Enviar para o mural</button></div><div id="nfb"></div></div>`;
   app.querySelectorAll('form').forEach((f) => f.onsubmit = async (e) => {
     e.preventDefault(); const i = Number(f.dataset.i); const inp = f.querySelector('input'); if (!inp.value.trim()) return;
@@ -302,27 +348,68 @@ function showPesquisa(d) {
   };
 }
 
-// ---------- 4) Treinador da Pokédex ----------
+// ---------- 4) Treinador de IA ----------
+// Mesma regra do servidor: uma pista vira atalho se, sozinha, explica pelo menos 5 das 6 fotos.
+function pista(cards, campo) {
+  const m = {};
+  cards.forEach((c) => { const v = c[campo]; m[v] = m[v] || {}; m[v][c.tipo] = (m[v][c.tipo] || 0) + 1; });
+  const ok = Object.values(m).reduce((s, cnt) => s + Math.max(...Object.values(cnt)), 0);
+  return { ok, grupos: Object.keys(m).length };
+}
 function showTreino(d) {
   wide(true);
-  const sel = new Set(); let prev = null; let tent = d.tentativas;
+  const sel = new Set(); let prev = null; const tent = d.tentativas;
+  const byId = Object.fromEntries(d.pool.map((c) => [c.id, c]));
   app.innerHTML = `
-    <div class="head"><div class="icon">🎓</div><div><div class="kicker">Atividade 4 · Jogo · Aplicar</div><h2>Treinador de IA: nível difícil</h2>
-      <p>Escolha <b>${d.escolher} fotos</b> para treinar a IA. Ela faz uma prova com <b>${d.teste.length} fotos que nunca viu</b>, em que cor e fundo enganam. Antes de treinar, <b>preveja a nota</b>. Você tem <b>${d.maxTentativas} tentativas</b>.</p></div></div>
-    <div class="box"><h3>A prova (a IA nunca viu estas fotos)</h3><div class="grid6 mini">${d.teste.map((c) => `<div>${foto(c.pk, c.fundo)}<div class="nm">${esc(c.nome)}</div></div>`).join('')}</div></div>
-    <h3>Fotos disponíveis para o treino</h3>
-    <div class="grid4" id="pool">${d.pool.map((c) => `<div class="pc pick" data-id="${c.id}">${foto(c.pk, c.fundo, tipoTag(c.tipo))}<div class="nm">${esc(c.nome)} <span class="muted">· ${c.cor} · ${FUNDO_N[c.fundo]}</span></div></div>`).join('')}</div>
-    <div class="box"><h3>Sua previsão: quantas das ${d.teste.length} a IA vai acertar?</h3><div class="chips" id="prev">${Array.from({ length: d.teste.length + 1 }, (_, k) => `<button class="chip" data-v="${k}">${k}</button>`).join('')}</div><p class="muted center">Acertar a previsão vale +40 pontos.</p></div>
+    <div class="head"><div class="icon">🎓</div><div><div class="kicker">Atividade 4 · Jogo · Aplicar</div><h2>Treinador de IA</h2>
+      <p>Agora é você quem ensina. Esta IA aprende a dizer o <b>tipo</b> de um Pokémon (🔥 Fogo, 💧 Água, 🌿 Planta) a partir de <b>${d.escolher} fotos</b> que você escolhe. Depois ela faz uma prova com fotos que nunca viu.</p></div></div>
+    <div class="box"><h3>🧠 Como esta IA pensa</h3>
+      <div class="rules3">
+        <div><span class="e">😴</span><span>Ela é <b>preguiçosa</b>: procura a pista mais fácil que separa os tipos. Primeiro testa o <b>fundo</b> da foto, depois a <b>cor</b> do Pokémon.</span></div>
+        <div><span class="e">✂️</span><span>Se uma pista acerta <b>5 das 6</b> fotos do treino, ela vira <b>atalho</b> e a IA cola. Ex.: se todo Pokémon de Fogo está no vulcão, ela aprende "vulcão = Fogo".</span></div>
+        <div><span class="e">🧩</span><span>Sua missão: colocar <b>contraexemplos</b> (como um Pokémon de Fogo na grama) até nenhuma pista funcionar sozinha. Aí ela é obrigada a olhar o Pokémon.</span></div>
+      </div>
+      ${art('<b>Ligação com o artigo:</b> na foto de pele, o "fundo" é a régua, o aparelho, a iluminação; a "cor" é o tom de pele. O artigo pede fotos variadas e de todos os tons pelo mesmo motivo.')}
+    </div>
+    <div class="box"><h3>📝 A prova (a IA nunca viu estas fotos)</h3><div class="grid6 mini">${d.teste.map((c) => `<div>${foto(c.pk, c.fundo)}<div class="nm">${esc(c.nome)}</div></div>`).join('')}</div>
+      <p class="muted">Repare: aqui o fundo e a cor <b>enganam</b>. Um Pokémon de Água no vulcão, um de Fogo no mar...</p></div>
+    <div class="two">
+      <div><h3 style="margin-bottom:12px">Escolha ${d.escolher} fotos para o treino</h3>
+        <div class="grid4 pool3" id="pool">${d.pool.map((c) => `<div class="pc pick" data-id="${c.id}">${foto(c.pk, c.fundo, tipoTag(c.tipo))}<div class="nm">${esc(c.nome)}<br><span class="muted">cor ${c.cor} · ${FUNDO_N[c.fundo]}</span></div></div>`).join('')}</div></div>
+      <div class="brain" id="brain"></div>
+    </div>
+    <div class="box"><h3>🔮 Sua previsão: quantas das ${d.teste.length} a IA vai acertar?</h3><div class="chips" id="prev">${Array.from({ length: d.teste.length + 1 }, (_, k) => `<button class="chip" data-v="${k}">${k}</button>`).join('')}</div><p class="muted center">Acertar a previsão vale +40 pontos. Você tem ${d.maxTentativas} tentativas.</p></div>
     <div class="btnrow"><span class="counter" id="cnt">0/${d.escolher} escolhidas</span><button class="btn" id="train" disabled>🧠 Treinar a IA</button></div>
     <div id="out">${tent ? `<p class="muted center">Tentativas usadas: ${tent}/${d.maxTentativas} · melhor nota: ${d.melhor}/${d.teste.length}</p>` : ''}</div>`;
   const cnt = document.getElementById('cnt'), train = document.getElementById('train');
-  const upd = () => { cnt.textContent = `${sel.size}/${d.escolher} escolhidas`; train.disabled = sel.size !== d.escolher || prev === null; };
+  const brain = () => {
+    const cards = [...sel].map((id) => byId[id]); const n = cards.length;
+    const tipos = new Set(cards.map((c) => c.tipo));
+    const row = (ic, nome, campo) => {
+      const p = pista(cards, campo); const atalho = n >= 2 && tipos.size >= 2 && p.grupos >= 2 && n - p.ok <= 1;
+      return { atalho, html: `<div class="meter ${atalho ? 'hot' : ''}"><span>${ic} ${nome}</span><div class="t"><i style="width:${n ? (p.ok / n) * 100 : 0}%"></i></div><b>${p.ok}/${n}</b></div>` };
+    };
+    const f = row('🏞️', 'Fundo', 'fundo'), c = row('🎨', 'Cor', 'cor');
+    const falta = TIPOS.filter((t) => !tipos.has(t));
+    let v;
+    if (n < d.escolher) v = `<div class="verdict">Escolha mais ${d.escolher - n} foto${d.escolher - n > 1 ? 's' : ''}.${f.atalho || c.atalho ? ` Por enquanto, ela colaria pel${f.atalho ? 'o <b>fundo</b>' : 'a <b>cor</b>'}.` : ''}</div>`;
+    else if (f.atalho) v = '<div class="verdict bad">⚠️ Do jeito que está, a IA vai colar pelo <b>FUNDO</b>. Troque fotos para criar contraexemplos.</div>';
+    else if (c.atalho) v = '<div class="verdict bad">⚠️ O fundo não funciona mais, mas a IA vai colar pela <b>COR</b>.</div>';
+    else if (falta.length) v = `<div class="verdict bad">⚠️ Faltou ${falta.map((t) => TIPO_E[t] + ' ' + t).join(' e ')}: ela nunca viu esse tipo e vai chutar.</div>`;
+    else v = '<div class="verdict good">✅ Nenhum atalho funciona! Ela vai ter que olhar o Pokémon de verdade.</div>';
+    document.getElementById('brain').innerHTML = `<h3>🧠 Cérebro da IA (ao vivo)</h3>
+      <p class="muted">Quantas fotos do seu treino cada pista explica sozinha. Barra vermelha = atalho (5 ou mais de 6).</p>
+      ${f.html}${c.html}
+      <div class="types">${TIPOS.map((t) => `<span class="${tipos.has(t) ? 'on' : ''}">${TIPO_E[t]} ${t}</span>`).join('')}</div>${v}`;
+  };
+  const upd = () => { cnt.textContent = `${sel.size}/${d.escolher} escolhidas`; train.disabled = sel.size !== d.escolher || prev === null; brain(); };
   app.querySelectorAll('.pick').forEach((el) => el.onclick = () => {
     const id = el.dataset.id;
     if (sel.has(id)) sel.delete(id); else if (sel.size < d.escolher) sel.add(id);
     el.classList.toggle('on', sel.has(id)); upd();
   });
   app.querySelectorAll('#prev .chip').forEach((b) => b.onclick = () => { prev = Number(b.dataset.v); app.querySelectorAll('#prev .chip').forEach((x) => x.classList.toggle('on', x === b)); upd(); });
+  upd();
   train.onclick = async () => {
     train.disabled = true;
     try {
@@ -335,13 +422,12 @@ function showTreino(d) {
           <h3>${r.acertos === T ? `🎉 ${T}/${T}! Sua IA aprendeu de verdade.` : `Nota da IA: ${r.acertos}/${T}`}</h3>
           <div class="fb ${r.previuAgora ? 'ok' : 'info'}">Você previu ${r.previsao}. ${r.previuAgora ? 'Acertou a previsão: você entendeu como ela aprende!' : 'A previsão não bateu. O que você não esperava?'}</div>
           ${r.regras.length ? `<p>A IA encontrou estes <b>atalhos</b> nas suas fotos de treino:</p><div class="regras">${r.regras.map(esc).join('<br>')}</div>` : `<p>Nenhum atalho funcionava nas suas fotos, então ela precisou aprender <b>a forma do Pokémon</b>.</p>`}
-          <div class="grid6 mini">${r.prova.map((x) => `<div class="pc ${x.ok ? 'right' : 'wrong'}" style="padding:5px">${foto(x.pk, x.fundo, `<span class="tag">${TIPO_E[x.palpite] || ''} ${esc(x.palpite)}</span>`)}<div class="nm">${x.ok ? '✅' : '❌'} ${esc(x.nome)}<br><span class="muted">${motivo(x)}</span></div></div>`).join('')}</div>
-          <div class="fb info">💡 Como esta IA funciona: uma pista (fundo ou cor) vira atalho se, sozinha, acerta <b>5 das 6</b> fotos do treino. Para quebrar um atalho, você precisa de <b>pelo menos 2 contraexemplos</b>.</div>
+          <div class="grid6 mini">${r.prova.map((x) => `<div class="pc ${x.ok ? 'right' : 'wrong'}" style="padding:6px">${foto(x.pk, x.fundo, `<span class="tag">${TIPO_E[x.palpite] || ''} ${esc(x.palpite)}</span>`)}<div class="nm">${x.ok ? '✅' : '❌'} ${esc(x.nome)}<br><span class="muted">${motivo(x)}</span></div></div>`).join('')}</div>
           <p class="muted center">${r.done ? 'Atividade concluída!' : `Tentativa ${r.tentativas}/${r.maxTentativas} · melhor nota ${r.melhor}/${T} · ${r.points} pts. Troque as fotos e tente de novo.`}</p>
           ${r.done ? '' : '<div class="btnrow"><button class="btn ghost" id="stop">Encerrar com esta nota</button></div>'}
         </div>`;
       document.getElementById('out').scrollIntoView({ behavior: 'smooth', block: 'start' });
-      if (r.done) { playing(''); later('treino', 9000); }
+      if (r.done) { playing(''); later('treino', 10000); }
       else document.getElementById('stop').onclick = async () => { try { await api('treino_done'); playing(''); waitDone('treino'); } catch {} };
       prev = null; app.querySelectorAll('#prev .chip').forEach((x) => x.classList.remove('on')); upd();
     } catch (e) { if (isMsg(e)) document.getElementById('out').innerHTML = `<div class="fb no">${esc(e.message)}</div>`; upd(); }
@@ -350,15 +436,18 @@ function showTreino(d) {
 
 // ---------- 5) Auditoria relâmpago ----------
 async function runAuditoria() {
+  wide(false);
   let n; try { n = await api('audit_next'); } catch { return; }
   if (n.done) { playing(''); return waitDone('auditoria'); }
   const E = ['✂️', '👥', '🧠'];
+  const limit = n.limitMs || 15000;
   app.innerHTML = `
-    <div class="kicker center">Atividade 5 · Auditoria relâmpago · ${n.index + 1} de ${n.total}</div>
+    <div class="kicker center">Atividade 5 · Auditoria relâmpago · caso ${n.index + 1} de ${n.total} · ${Math.round(limit / 1000)} s</div>
     <h2 class="center">${n.bonus ? '⚡ Vale dobrado' : 'Qual é o diagnóstico desta IA?'}</h2>
     <div class="timer-bar"><div class="timer-fill" id="bar"></div></div>
     <div class="situation">${esc(n.q)}</div>
     <div class="three" id="opts">${n.opts.map((o, i) => `<button class="opt" data-i="${i}"><span class="e">${E[i]}</span>${esc(o)}</button>`).join('')}</div>
+    <p class="muted center">✂️ aprendeu um detalhe da foto · 👥 faltou gente nos dados · 🧠 funciona fora do treino</p>
     <div id="fb"></div>`;
   let answered = false;
   const send = async (choice) => {
@@ -369,19 +458,21 @@ async function runAuditoria() {
       const btns = app.querySelectorAll('#opts button'); btns[r.correctIndex].classList.add('correct'); if (!r.correct && choice >= 0) btns[choice].classList.add('wrong');
       addScore(r.points);
       document.getElementById('fb').innerHTML = r.correct ? `<div class="fb ok">✅ Isso! +${r.points} pontos<br><span class="n">${esc(r.why)}</span></div>` : `<div class="fb no">${choice < 0 || r.timedOut ? '⏱️ Tempo esgotado.' : '❌ Não foi dessa vez.'}<br><span class="n">${esc(r.why)}</span></div>`;
-      setTimeout(() => { if (curStage === 'auditoria') runAuditoria(); }, 3200);
+      setTimeout(() => { if (curStage === 'auditoria') runAuditoria(); }, 3600);
     } catch {}
   };
   app.querySelectorAll('#opts button').forEach((b) => b.onclick = () => send(Number(b.dataset.i)));
   const bar = document.getElementById('bar'); const ms = n.remainingMs; const t0 = Date.now();
-  clearTimer(); timer = setInterval(() => { const left = Math.max(0, ms - (Date.now() - t0)); bar.style.width = (left / 12000 * 100) + '%'; if (left <= 0) { clearTimer(); send(-1); } }, 100);
+  clearTimer(); timer = setInterval(() => { const left = Math.max(0, ms - (Date.now() - t0)); bar.style.width = (left / limit * 100) + '%'; if (left <= 0) { clearTimer(); send(-1); } }, 100);
 }
 
 // ---------- 6) Plano de dados ----------
 function showPlano(d) {
+  wide(false);
   const sel = new Set();
   app.innerHTML = `
     <div class="head"><div class="icon">🗂️</div><div><div class="kicker">Atividade 6 · Criar</div><h2>Plano de dados</h2><p>${esc(d.pergunta)}</p></div></div>
+    ${how(['Leia as 9 ações. Algumas protegem a IA, outras são <b>armadilhas</b>.', 'Escolha as <b>4</b> que evitam atalhos e falta de representatividade.', 'Justifique em uma frase. Ela vai para o mural.'])}
     <div class="plist" id="pl">${d.opcoes.map((o) => `<button class="pitem" data-id="${o.id}"><span class="ck"></span><span>${esc(o.text)}<span class="why"></span></span></button>`).join('')}</div>
     <div class="btnrow"><span class="counter" id="cnt">0/${d.escolher} escolhidas</span></div>
     <textarea id="frase" maxlength="220" placeholder="Justifique em uma ou duas frases: por que essas ações evitam atalhos e falta de representatividade?"></textarea>

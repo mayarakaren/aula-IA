@@ -45,8 +45,8 @@ module.exports = async (req, res) => {
       const stage = body.stage;
       if (!need(stage)) return;
       const base = { done: G.isDone(p, stage), points: p.scores[stage] || 0, remainingMs };
-      if (stage === 'detetive') return send(res, 200, { ...base, fotos: C.DETETIVE.fotos.map((f) => ({ id: f.id, legenda: f.legenda, ia: f.ia, conf: f.conf, real: f.real })), regras: C.DETETIVE.regras });
-      if (stage === 'pesquisa') return send(res, 200, { ...base, citacao: C.PESQUISA.citacao, url: C.PESQUISA.url, doi: C.PESQUISA.doi, prompts: C.PESQUISA.questions.map((q) => ({ prompt: q.prompt, dica: q.dica })), answered: p.pesquisa.answered, norteadora: C.PESQUISA.norteadora, minNorteadora: C.PESQUISA.minNorteadora, enviou: !!p.pesquisa.norteadora });
+      if (stage === 'detetive') return send(res, 200, { ...base, fotos: C.DETETIVE.fotos.map((f) => ({ id: f.id, tom: f.tom, lesao: f.lesao, regua: f.regua, ia: f.ia, conf: f.conf, real: f.real })), regras: C.DETETIVE.regras });
+      if (stage === 'pesquisa') return send(res, 200, { ...base, citacao: C.PESQUISA.citacao, url: C.PESQUISA.url, site: C.PESQUISA.site, prompts: C.PESQUISA.questions.map((q) => ({ prompt: q.prompt, onde: q.onde, busca: q.busca, dica: q.dica })), answered: p.pesquisa.answered, norteadora: C.PESQUISA.norteadora, minNorteadora: C.PESQUISA.minNorteadora, enviou: !!p.pesquisa.norteadora });
       if (stage === 'treino') return send(res, 200, { ...base, escolher: C.TREINO.escolher, maxTentativas: C.TREINO.maxTentativas, pool: C.TREINO.pool.map((c) => ({ ...card(c), tipo: C.POKEMON[c.pk].tipo, cor: C.POKEMON[c.pk].cor })), teste: C.TREINO.teste.map((c) => ({ ...card(c), cor: C.POKEMON[c.pk].cor })), tentativas: p.treino.tentativas, melhor: p.treino.melhor });
       if (stage === 'auditoria') return send(res, 200, { ...base, total: C.AUDITORIA.casos.length, idx: p.auditoria.idx });
       if (stage === 'plano') return send(res, 200, { ...base, escolher: C.PLANO.escolher, minFrase: C.PLANO.minFrase, pergunta: C.PLANO.pergunta, opcoes: C.PLANO.opcoes.map((o) => ({ id: o.id, text: o.text })) });
@@ -62,7 +62,7 @@ module.exports = async (req, res) => {
       const olhou = Array.isArray(body.olhou) ? body.olhou.slice(0, F.length) : [];
       const regra = Number(body.regra);
       if (marks.length !== F.length || marks.some((m) => typeof m !== 'boolean')) return send(res, 400, { error: 'Diga se a IA acertou ou errou em todas as fotos.' });
-      if (olhou.length !== F.length || olhou.some((o) => o !== 'animal' && o !== 'fundo')) return send(res, 400, { error: 'Marque onde a IA olhou em todas as fotos.' });
+      if (olhou.length !== F.length || olhou.some((o) => o !== 'lesao' && o !== 'fora')) return send(res, 400, { error: 'Marque onde a IA olhou em todas as fotos.' });
       if (!(regra >= 0 && regra < C.DETETIVE.regras.length)) return send(res, 400, { error: 'Escolha a regra que a IA aprendeu.' });
       const certo = F.map((f) => f.ia === f.real);
       const marcasOk = marks.filter((m, i) => m === certo[i]).length;
@@ -132,7 +132,7 @@ module.exports = async (req, res) => {
         if (s.idx >= items.length) return send(res, 200, { done: true, points: p.scores.auditoria });
         if (!s.sentAt || now - s.sentAt > C.AUDITORIA.limitMs + 2000) { s.sentAt = now; await G.savePlayer(p); }
         const it = items[s.idx];
-        return send(res, 200, { index: s.idx, total: items.length, q: it.text, opts: C.AUDITORIA.options, bonus: !!it.bonus, remainingMs: Math.max(0, C.AUDITORIA.limitMs - (now - s.sentAt)) });
+        return send(res, 200, { index: s.idx, total: items.length, q: it.text, opts: C.AUDITORIA.options, bonus: !!it.bonus, limitMs: C.AUDITORIA.limitMs, remainingMs: Math.max(0, C.AUDITORIA.limitMs - (now - s.sentAt)) });
       }
       if (!s.sentAt || s.idx >= items.length) return send(res, 409, { error: 'no_question' });
       const it = items[s.idx]; const el = now - s.sentAt; const choice = Number(body.choice);

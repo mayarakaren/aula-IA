@@ -34,11 +34,11 @@ async function player(i) {
   // 1) Detetive
   await waitFor('detetive'); const d = await play('enter', { stage: 'detetive' });
   await sleep(rnd(5000, 20000) * SPEED);
-  const certo = d.fotos.map((f) => f.ia === f.real); const olh = ['fundo', 'animal', 'fundo', 'fundo', 'animal', 'fundo'];
-  await play('detetive_submit', { marks: certo.map((c) => (Math.random() < 0.85 ? c : !c)), olhou: olh.map((o) => (Math.random() < 0.8 ? o : o === 'fundo' ? 'animal' : 'fundo')), regra: Math.random() < 0.7 ? 0 : pick([1, 2, 3]) });
+  const certo = d.fotos.map((f) => f.ia === f.real); const olh = ['fora', 'fora', 'fora', 'lesao', 'fora', 'fora'];
+  await play('detetive_submit', { marks: certo.map((c) => (Math.random() < 0.85 ? c : !c)), olhou: olh.map((o) => (Math.random() < 0.8 ? o : o === 'fora' ? 'lesao' : 'fora')), regra: Math.random() < 0.7 ? 0 : pick([1, 2, 3]) });
   // 3) Pesquisa
   await waitFor('pesquisa'); await play('enter', { stage: 'pesquisa' });
-  const ans = ['pele branca e asiatica', '10.000', 'boa iluminacao'];
+  const ans = ['pele branca e asiatica', '10.000', 'Europa e Leste Asiatico'];
   for (let q = 0; q < 3; q++) { await sleep(rnd(3000, 9000) * SPEED); if (Math.random() < 0.2) await play('pesquisa_answer', { qi: q, text: 'nao sei' }); await play('pesquisa_answer', { qi: q, text: ans[q] }); }
   await play('pesquisa_norteadora', { text: 'A IA pode errar em peles negras e pardas, que quase nao estavam nos dados. Eu exigiria fotos de brasileiros.' });
   // 4) Treinador

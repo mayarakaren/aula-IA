@@ -1,6 +1,6 @@
 # Da API à IA · "A IA só aprende o que os dados mostram"
 
-Plataforma da 2ª avaliação (Educação em Computação, Unesp 2026). Aula online de ~24 min com 6 atividades, ranking coletivo e etapas liberadas pela professora.
+Plataforma da 2ª avaliação (Educação em Computação, Unesp 2026). Aula online de ~25 min com 6 atividades, ranking coletivo e etapas liberadas pela professora.
 
 - Alunos: `/` (entram com apelido)
 - Professora: `/professora` (senha da variável `HOST_PASSWORD`)
@@ -28,20 +28,20 @@ $env:BASE_URL="https://SEU-SITE.vercel.app"; $env:HOST_PASSWORD="SUA_SENHA"; $en
 ```
 Depois, no painel: ⚙ → Reiniciar aula.
 
-## Ordem da aula (~24 min)
+## Ordem da aula (~25 min)
 
 | Tela do painel | Tempo |
 | --- | --- |
 | 1 Abertura "Da API à IA" | 0:45 |
 | 2 Objetivos (Bloom) + link | 0:45 |
-| 3 Detetive de dados → Liberar | 3:30 |
+| 3 Detetive de dados (IA das pintas) → Liberar | 3:30 |
 | Ranking + painel | 0:30 |
 | 4 Explicação (2 telas, fecha a etapa anterior) | 3:00 |
 | 5 Pesquisa no artigo → Liberar | 4:00 |
 | Mural da pergunta norteadora | 0:30 |
 | 6 Treinador (fecha a pesquisa) → Liberar | 4:00 |
 | Ranking + painel | 0:30 |
-| 7 Auditoria relâmpago → Liberar | 2:00 |
+| 7 Auditoria relâmpago (15 s por caso) → Liberar | 2:30 |
 | Ranking | 0:15 |
 | 8 Plano de dados → Liberar | 2:30 |
 | Mural do plano | 0:45 |
@@ -52,8 +52,13 @@ Depois, no painel: ⚙ → Reiniciar aula.
 
 Tudo fica em `lib/content.js`: fotos, perguntas, casos, opções, pontos e tempos (`STAGE_TIMERS`, em milissegundos).
 
+- **Pesquisa:** cada pergunta tem `onde` (seção e página) e `busca` (palavra para o Ctrl+F).
+- **Auditoria:** tempo por caso em `AUDITORIA.limitMs`.
+- **Ilustrações de pele:** desenhadas em `public/pele.js` (tom de pele, tipo de pinta, régua). Não são fotos de pacientes.
+
 ## Créditos
 
-- Artigo: Silva DLF et al. An Bras Dermatol. 2025;100(5):501164 (CC BY), em `public/artigo.pdf`.
-- Fotos de cães e lobos: amostras do ImageNet (Deng et al., 2009), uso educacional. Os mapas de calor são simulados para a aula.
+- Artigo: Silva DLF et al. An Bras Dermatol. 2025;100(5):501164 (CC BY), em `public/artigo.pdf`. Página: https://www.anaisdedermatologia.org.br/en-inteligencia-artificial-em-dermatoses-inflamatorias-articulo-S2666275225001237
+- Atalho da régua/caneta: Winkler JK et al. JAMA Dermatol. 2019;155(10):1135–1141.
+- Ilustrações de pele e mapas de calor: criados para a aula (simulados).
 - Imagens de Pokémon: PokéAPI (uso educacional, sem fins comerciais).
