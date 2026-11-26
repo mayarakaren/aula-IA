@@ -90,6 +90,21 @@
   .pill { font-size:12.5px; font-weight:700; border-radius:999px; padding:5px 11px; background:var(--deep2); border:1px solid var(--line); color:var(--soft); }
   .pill.find { border-color:rgba(255,209,102,.55); color:var(--gold); } .pill.find code { font-family:inherit; font-weight:800; }
   .qtext { color:var(--ink); font-size:16.5px; font-weight:600; }
+  .trechos { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+  .tbtn { text-align:left; background:var(--deep2); border:2px solid var(--line); border-radius:14px; padding:12px 14px; color:var(--ink); font:inherit; font-size:14px; font-weight:800; cursor:pointer; line-height:1.4; }
+  .tbtn:hover { border-color:var(--gold); } .tbtn span { display:block; font-weight:600; font-size:12.5px; color:var(--mute); margin-top:3px; }
+  .pill.read { cursor:pointer; border-color:rgba(255,209,102,.7); color:var(--gold); background:rgba(255,209,102,.1); font:inherit; font-size:12.5px; font-weight:800; }
+  .modal { position:fixed; inset:0; z-index:200; background:rgba(8,3,20,.72); backdrop-filter:blur(3px); display:flex; align-items:center; justify-content:center; padding:16px; animation:fadeIn .2s ease-out; }
+  @keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
+  .sheet { width:100%; max-width:760px; max-height:88vh; overflow:auto; background:#fbf8ff; color:#1d1430; border-radius:20px; padding:28px 30px; box-shadow:0 30px 70px rgba(0,0,0,.5); }
+  .sheet .top { display:flex; justify-content:space-between; gap:16px; align-items:flex-start; padding-bottom:16px; border-bottom:1px solid #e3d9f5; }
+  .sheet .src { font-size:11.5px; font-weight:800; letter-spacing:.07em; text-transform:uppercase; color:#6a3fd0; }
+  .sheet h3 { color:#1d1430; font-size:21px; margin-top:6px; }
+  .sheet .close { flex:none; background:#fff; border:1px solid #d6c9ef; border-radius:12px; padding:9px 14px; font:inherit; font-weight:800; color:#1d1430; cursor:pointer; }
+  .sheet .body { margin-top:18px; } .sheet .body p { color:#2a2140; font-size:16.5px; line-height:1.75; text-align:justify; margin:0 0 14px; }
+  .sheet .ask { background:#f1eaff; border-left:4px solid #7a3fe0; border-radius:10px; padding:12px 14px; font-size:15px; font-weight:700; color:#2a1a55; margin-bottom:16px; }
+  .sheet .cite { font-size:12.5px; color:#6b5f86; border-top:1px solid #e3d9f5; padding-top:12px; }
+  @media (max-width:640px){ .trechos{grid-template-columns:1fr;} .sheet{padding:20px 18px;} .sheet .body p{text-align:left; font-size:16px;} }
   /* Pokémon (treinador) */
   .foto { position:relative; aspect-ratio:4/3; border-radius:12px; background-size:cover; background-position:center; overflow:hidden; }
   .foto img { position:absolute; left:50%; bottom:7%; transform:translateX(-50%); height:70%; max-width:85%; object-fit:contain; filter:drop-shadow(0 6px 6px rgba(0,0,0,.35)); }
@@ -256,7 +271,7 @@ function showTimeUp() {
 async function route(stage) {
   const mine = ++routing;
   if (!me) return showJoin();
-  curStage = stage; clearTimer(); cancelLater(); stageChip(null); paintSteps(stage); playing(''); wide(false);
+  curStage = stage; fecharTrecho(); clearTimer(); cancelLater(); stageChip(null); paintSteps(stage); playing(''); wide(false);
   if (stage === 'lobby' || stage === 'closed') return showWait(stage);
   try {
     if (stage === 'final') return await showFinal();
@@ -328,17 +343,21 @@ function showPesquisa(d) {
     <div class="head"><div class="icon">📄</div><div><div class="kicker">Atividade 3 · Pesquisa em artigo científico</div><h2>O que a pesquisa brasileira diz?</h2>
       <p>Uma equipe da Unicamp revisou estudos de IA em doenças de pele. Vamos usar o artigo para entender <b>por que</b> a IA das pintas falharia no Brasil.</p></div></div>
     <div class="box"><p style="font-size:14.5px">${esc(d.citacao)}</p><div class="btnrow" style="justify-content:flex-start"><a class="link-btn" href="${d.url}" target="_blank" rel="noopener">📄 Abrir o PDF</a><a class="link-btn" href="${d.site}" target="_blank" rel="noopener">🌐 Página do artigo</a></div></div>
-    <div class="art"><span class="ic">💡</span><span><b>Não deu tempo de ler tudo?</b> Abra o PDF e use a busca: <b>Ctrl+F</b> no computador, ou <b>⋮ → Localizar na página</b> no celular. Cada pergunta diz onde está a resposta e que palavra procurar.</span></div>
+    <div class="box"><h3>📖 Os trechos que você precisa ler</h3>
+      <p style="font-size:14.5px">Não deu tempo de ler tudo? A resposta da <b>pergunta 1 está no trecho 1</b>, da 2 no trecho 2, e assim vai. É o texto original do artigo, sem cortes no que importa.</p>
+      <div class="trechos">${d.prompts.map((q, i) => `<button class="tbtn" data-t="${i}">Trecho ${i + 1}<span>${esc(q.trecho.secao)} · ${esc(q.trecho.pagina)}</span></button>`).join('')}</div>
+      <p class="muted">Prefere o artigo completo? Abra o PDF e use <b>Ctrl+F</b> (no celular: <b>⋮ → Localizar na página</b>) com a palavra indicada em cada pergunta.</p></div>
     <p><b>Parte 1 · Localize no texto</b></p>
     ${d.prompts.map((q, i) => `<div class="box" id="q${i}">
       <p class="qtext">${i + 1}. ${esc(q.prompt)}</p>
-      <div class="qmeta"><span class="pill">📍 ${esc(q.onde)}</span><span class="pill find">🔍 procure: <code>${esc(q.busca)}</code></span></div>
+      <div class="qmeta"><button class="pill read" data-t="${i}">📖 Ler o trecho ${i + 1}</button><span class="pill">📍 ${esc(q.onde)}</span><span class="pill find">🔍 no PDF, procure: <code>${esc(q.busca)}</code></span></div>
       <form class="row" data-i="${i}"><input class="input" maxlength="80" placeholder="Sua resposta" ${d.answered[i] ? 'disabled value="✅ respondida"' : ''}><button class="btn" ${d.answered[i] ? 'disabled' : ''}>Enviar</button></form><div class="fbz"></div></div>`).join('')}
     <p><b>Parte 2 · Pergunta norteadora</b> (vai para o mural da turma)</p>
     <div class="box"><p style="color:var(--ink);font-size:16px;font-weight:700">${esc(d.norteadora)}</p>
       <p class="muted">Dica: junte as respostas da Parte 1. Quem estava nos dados? Quem ficou de fora?</p>
       <textarea id="nort" maxlength="400" placeholder="Use o que você encontrou no artigo..." ${d.enviou ? 'disabled' : ''}>${d.enviou ? '✅ resposta enviada' : ''}</textarea>
       <div class="btnrow" style="justify-content:space-between"><span class="muted" id="nc">mínimo ${d.minNorteadora} caracteres</span><button class="btn" id="nsend" ${d.enviou ? 'disabled' : ''}>📌 Enviar para o mural</button></div><div id="nfb"></div></div>`;
+  app.querySelectorAll('[data-t]').forEach((b) => b.onclick = () => abrirTrecho(d, Number(b.dataset.t)));
   app.querySelectorAll('form').forEach((f) => f.onsubmit = async (e) => {
     e.preventDefault(); const i = Number(f.dataset.i); const inp = f.querySelector('input'); if (!inp.value.trim()) return;
     const box = f.parentElement.querySelector('.fbz');
@@ -360,6 +379,23 @@ function showPesquisa(d) {
     } catch (e) { if (isMsg(e)) nfb.innerHTML = `<div class="fb no">${esc(e.message)}</div>`; }
   };
 }
+
+// janela com o trecho do artigo (texto original; a resposta não vem destacada)
+function abrirTrecho(d, i) {
+  const q = d.prompts[i]; if (!q || !q.trecho) return;
+  fecharTrecho();
+  const m = document.createElement('div'); m.className = 'modal'; m.id = 'trechoModal';
+  m.innerHTML = `<div class="sheet" role="dialog" aria-modal="true" aria-label="Trecho ${i + 1} do artigo">
+    <div class="top"><div><div class="src">Anais Brasileiros de Dermatologia · 2025 · acesso aberto</div><h3>Trecho ${i + 1} · ${esc(q.trecho.secao)} (${esc(q.trecho.pagina)})</h3></div><button class="close" id="tclose">✕ Fechar</button></div>
+    <div class="body"><div class="ask">Pergunta ${i + 1}: ${esc(q.prompt)}</div>${q.trecho.texto.map((t) => `<p>${esc(t)}</p>`).join('')}</div>
+    <div class="cite">${esc(d.citacao)} [...] indica um trecho omitido.</div></div>`;
+  document.body.appendChild(m);
+  m.onclick = (e) => { if (e.target === m) fecharTrecho(); };
+  document.getElementById('tclose').onclick = fecharTrecho;
+  document.getElementById('tclose').focus();
+}
+function fecharTrecho() { const m = document.getElementById('trechoModal'); if (m) m.remove(); }
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') fecharTrecho(); });
 
 // ---------- 4) Treinador de IA ----------
 // Mesma regra do servidor: uma pista vira atalho se, sozinha, explica pelo menos 5 das 6 fotos.

@@ -62,7 +62,7 @@ module.exports = async (req, res) => {
       if (!need(stage)) return;
       const base = { done: G.isDone(p, stage), points: p.scores[stage] || 0, remainingMs };
       if (stage === 'detetive') return send(res, 200, { ...base, fotos: C.DETETIVE.fotos.map((f) => ({ id: f.id, tom: f.tom, lesao: f.lesao, regua: f.regua, ia: f.ia, conf: f.conf, real: f.real })), regras: C.DETETIVE.regras });
-      if (stage === 'pesquisa') return send(res, 200, { ...base, citacao: C.PESQUISA.citacao, url: C.PESQUISA.url, site: C.PESQUISA.site, prompts: C.PESQUISA.questions.map((q) => ({ prompt: q.prompt, onde: q.onde, busca: q.busca, dica: q.dica })), answered: p.pesquisa.answered, norteadora: C.PESQUISA.norteadora, minNorteadora: C.PESQUISA.minNorteadora, enviou: !!p.pesquisa.norteadora });
+      if (stage === 'pesquisa') return send(res, 200, { ...base, citacao: C.PESQUISA.citacao, url: C.PESQUISA.url, site: C.PESQUISA.site, prompts: C.PESQUISA.questions.map((q) => ({ prompt: q.prompt, onde: q.onde, busca: q.busca, trecho: q.trecho, dica: q.dica })), answered: p.pesquisa.answered, norteadora: C.PESQUISA.norteadora, minNorteadora: C.PESQUISA.minNorteadora, enviou: !!p.pesquisa.norteadora });
       if (stage === 'treino') return send(res, 200, { ...base, ...treinoData(p, p.treino.done && p.treino.n2 ? 2 : 1) });
       if (stage === 'auditoria') return send(res, 200, { ...base, total: C.AUDITORIA.casos.length, idx: p.auditoria.idx });
       if (stage === 'plano') return send(res, 200, { ...base, escolher: C.PLANO.escolher, minFrase: C.PLANO.minFrase, pergunta: C.PLANO.pergunta, opcoes: C.PLANO.opcoes.map((o) => ({ id: o.id, text: o.text })) });
