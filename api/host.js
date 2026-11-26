@@ -1,6 +1,7 @@
 const G = require('../lib/game');
 const C = G.C;
 const send = (res, code, obj) => res.status(code).json(obj);
+const avg = (arr) => (arr.length ? Math.round((arr.reduce((a, b) => a + b, 0) / arr.length) * 10) / 10 : 0);
 
 module.exports = async (req, res) => {
   try {
@@ -20,23 +21,28 @@ module.exports = async (req, res) => {
       const ps = await G.allPlayers();
       const top = G.ranking(ps).slice(0, Number(body.top) || 8).map((p) => ({ nick: p.nick, total: p.total }));
       const doneNow = ps.filter((p) => G.isDone(p, st.stage)).length;
-      // painel do Mistério
-      const mis = ps.filter((p) => p.misterio.done);
-      const certo = C.MISTERIO.cards.map((c) => c.guess === C.POKEMON[c.pk].tipo);
-      const pistaCount = Object.fromEntries(C.MISTERIO.pistas.map((x) => [x, mis.filter((p) => p.misterio.pistas.includes(x)).length]));
-      const misterio = {
-        enviaram: mis.length,
-        marcasMedia: mis.length ? Math.round((mis.reduce((a, p) => a + p.misterio.marks.filter((m, i) => m === certo[i]).length, 0) / mis.length) * 10) / 10 : 0,
-        completas: mis.filter((p) => C.MISTERIO.certas.every((x) => p.misterio.pistas.includes(x)) && p.misterio.pistas.length === C.MISTERIO.certas.length).length,
-        pistaCount,
+      // 1) Detetive
+      const F = C.DETETIVE.fotos; const certo = F.map((f) => f.ia === f.real);
+      const det = ps.filter((p) => p.detetive.done);
+      const detetive = {
+        enviaram: det.length,
+        marcasMedia: avg(det.map((p) => p.detetive.marks.filter((m, i) => m === certo[i]).length)),
+        olhouMedia: avg(det.map((p) => p.detetive.olhou.filter((o, i) => o === F[i].olhou).length)),
+        regraCount: C.DETETIVE.regras.map((r, i) => ({ regra: r, n: det.filter((p) => p.detetive.regra === i).length, certa: i === C.DETETIVE.regraCerta })),
       };
-      // painel do Treinador
-      const tr = ps.filter((p) => p.treino.tentativas > 0);
-      const treino = { jogaram: tr.length, perfeitos: tr.filter((p) => p.treino.melhor === 4).length, tentativasMedia: tr.length ? Math.round((tr.reduce((a, p) => a + p.treino.tentativas, 0) / tr.length) * 10) / 10 : 0 };
-      // mural do Conserte
-      const mural = ps.filter((p) => p.conserte.done).sort((a, b) => (b.conserte.at || 0) - (a.conserte.at || 0)).slice(0, 40)
-        .map((p) => ({ nick: p.nick, ex: p.conserte.ex.map((e) => ({ ...e, nome: C.POKEMON[e.pk].nome, tipo: C.POKEMON[e.pk].tipo })), frase: p.conserte.frase, quebra: p.conserte.quebra }));
-      return send(res, 200, { stage: st.stage, seq: st.seq, deadline: st.deadline, startedAt: st.startedAt, serverNow: Date.now(), count: ps.length, doneNow, top, misterio, treino, mural });
+      // 3) Pesquisa: respostas à pergunta norteadora
+      const respostas = ps.filter((p) => p.pesquisa.norteadora).sort((a, b) => (b.pesquisa.at || 0) - (a.pesquisa.at || 0)).slice(0, 40).map((p) => ({ nick: p.nick, text: p.pesquisa.norteadora }));
+      // 4) Treinador
+      const tr = ps.filter((p) => p.treino.tentativas > 0); const tot = C.TREINO.teste.length;
+      const treino = { jogaram: tr.length, perfeitos: tr.filter((p) => p.treino.melhor === tot).length, melhorMedia: avg(tr.map((p) => p.treino.melhor)), tentativasMedia: avg(tr.map((p) => p.treino.tentativas)), previram: tr.filter((p) => p.treino.previu).length, total: tot };
+      // 6) Plano de dados
+      const pl = ps.filter((p) => p.plano.done);
+      const plano = {
+        enviaram: pl.length,
+        contagem: C.PLANO.opcoes.map((o) => ({ id: o.id, text: o.text, boa: o.boa, n: pl.filter((p) => p.plano.ids.includes(o.id)).length })),
+        frases: pl.filter((p) => p.plano.frase).sort((a, b) => (b.plano.at || 0) - (a.plano.at || 0)).slice(0, 30).map((p) => ({ nick: p.nick, frase: p.plano.frase })),
+      };
+      return send(res, 200, { stage: st.stage, seq: st.seq, deadline: st.deadline, startedAt: st.startedAt, serverNow: Date.now(), count: ps.length, doneNow, top, detetive, respostas, treino, plano });
     }
     return send(res, 400, { error: 'action' });
   } catch (e) { return send(res, 500, { error: String(e.message || e) }); }

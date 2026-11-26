@@ -1,8 +1,8 @@
 {
-  "name": "aula-ia-atalhos",
+  "name": "aula-da-api-a-ia",
   "version": "1.0.0",
   "private": true,
-  "description": "Aula 'A IA adora colar' (2ª avaliação do mestrado): ranking coletivo e etapas liberadas pela professora",
+  "description": "Aula \"A IA só aprende o que os dados mostram\" (2ª avaliação do mestrado): ranking coletivo e etapas liberadas pela professora",
   "engines": { "node": ">=18" },
   "scripts": { "dev": "node scripts/dev-server.js", "loadtest": "node scripts/loadtest.js" }
 }

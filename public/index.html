@@ -3,108 +3,112 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>A IA adora colar · Aula</title>
+<title>Da API à IA · Aula</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-  :root { --ink:#f6efff; --bg2:rgba(52,28,98,.78); --card:rgba(26,12,52,.88); --purple:#b98aff; --purple-deep:#7a3fe0; --pink:#ff7ab8; --gold:#ffd166; --green:#56e695; --red:#ff6b7a; --line:rgba(185,138,255,.32); }
+  :root { --bg:#0e1120; --card:#161a2e; --card2:#1d2240; --line:#2c3358; --ink:#eef0fb; --soft:#b5bbdc; --mute:#8189b3; --acc:#8b7cff; --acc2:#5b8cff; --ok:#3dd6a5; --no:#ff6b81; --warn:#ffc65c; }
   * { box-sizing:border-box; }
   html, body { margin:0; min-height:100%; }
-  body { font-family:'Segoe UI',system-ui,-apple-system,sans-serif; color:var(--ink); min-height:100vh; display:flex; align-items:center; justify-content:center; padding:16px 14px;
-    padding-top:calc(16px + env(safe-area-inset-top,0px)); padding-bottom:calc(16px + env(safe-area-inset-bottom,0px));
-    background:linear-gradient(rgba(18,8,38,.50),rgba(18,8,38,.62)),url('/img/fundo.jpg') center/cover fixed #1a0c36; }
-  .wrap { width:100%; max-width:820px; position:relative; z-index:1; }
-  .wrap.wide { max-width:1040px; }
-  .topbar { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:10px; font-size:12px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; color:#e6d4ff; }
-  .badge { background:var(--card); border:1px solid var(--line); border-radius:20px; padding:6px 14px; max-width:40%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .badge.score { border-color:var(--gold); color:var(--gold); }
-  .dchip { font-weight:900; font-size:15px; padding:5px 14px; border-radius:20px; background:rgba(14,6,32,.85); border:2px solid var(--gold); color:var(--gold); }
-  .dchip.low { color:var(--red); border-color:var(--red); animation:pulse .8s ease-in-out infinite; }
-  .steps { display:flex; gap:6px; justify-content:center; margin-bottom:12px; flex-wrap:wrap; }
-  .step { font-size:11px; font-weight:800; padding:5px 11px; border-radius:20px; background:rgba(26,12,52,.55); color:#a58ad6; }
-  .step.done { background:rgba(86,230,149,.16); color:var(--green); }
-  .step.now { background:linear-gradient(135deg,var(--purple-deep),var(--pink)); color:#fff; box-shadow:0 0 14px rgba(255,122,184,.55); }
-  .card { background:var(--card); border:1px solid var(--line); border-radius:24px; padding:26px 24px; box-shadow:0 22px 46px rgba(10,3,28,.55); backdrop-filter:blur(8px); animation:fadeUp .4s cubic-bezier(.21,1.02,.73,1); min-height:420px; display:flex; flex-direction:column; justify-content:center; }
+  body { font-family:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif; color:var(--ink); min-height:100vh; display:flex; align-items:flex-start; justify-content:center; padding:18px 16px;
+    padding-top:calc(18px + env(safe-area-inset-top,0px)); padding-bottom:calc(24px + env(safe-area-inset-bottom,0px));
+    background:radial-gradient(1200px 600px at 10% -10%,rgba(139,124,255,.18),transparent 60%),radial-gradient(900px 500px at 110% 10%,rgba(91,140,255,.14),transparent 60%),var(--bg); }
+  .wrap { width:100%; max-width:760px; }
+  .wrap.wide { max-width:1060px; }
+  .topbar { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:12px; font-size:13px; font-weight:600; }
+  .badge { background:var(--card); border:1px solid var(--line); border-radius:999px; padding:6px 14px; max-width:42%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--soft); }
+  .badge.score { color:var(--warn); border-color:rgba(255,198,92,.45); }
+  .dchip { font-weight:800; font-size:14px; padding:5px 14px; border-radius:999px; background:var(--card); border:1px solid var(--acc); color:#d9d4ff; font-variant-numeric:tabular-nums; }
+  .dchip.low { color:var(--no); border-color:var(--no); animation:pulse .8s ease-in-out infinite; }
+  .steps { display:flex; gap:6px; justify-content:center; margin-bottom:14px; flex-wrap:wrap; }
+  .step { font-size:11.5px; font-weight:700; padding:5px 11px; border-radius:999px; background:var(--card); color:var(--mute); border:1px solid var(--line); }
+  .step.done { color:var(--ok); border-color:rgba(61,214,165,.35); }
+  .step.now { background:var(--acc); color:#fff; border-color:var(--acc); }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:20px; padding:26px 24px; box-shadow:0 24px 60px rgba(0,0,0,.35); animation:fadeUp .35s ease-out; min-height:380px; display:flex; flex-direction:column; justify-content:center; }
   .card > * + * { margin-top:14px; }
-  @keyframes fadeUp { from{opacity:0;transform:translateY(14px);} to{opacity:1;transform:translateY(0);} }
-  @keyframes pop { 0%{transform:scale(.7);opacity:0;} 60%{transform:scale(1.07);opacity:1;} 100%{transform:scale(1);} }
-  @keyframes shake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-6px);} 75%{transform:translateX(6px);} }
-  @keyframes bob { 0%,100%{transform:translateY(0) rotate(-2deg);} 50%{transform:translateY(-10px) rotate(2deg);} }
-  @keyframes pulse { 0%,100%{transform:scale(1);} 50%{transform:scale(1.07);} }
-  h2 { font-size:22px; margin:0; text-align:center; }
-  h3 { margin:0; font-size:15px; color:var(--gold); }
-  p { line-height:1.55; font-size:16px; color:#e2d3fb; margin:0; }
-  .muted { color:#b79ce8; font-size:13px; text-align:center; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(10px);} to{opacity:1;transform:none;} }
+  @keyframes pop { 0%{transform:scale(.85);opacity:0;} 100%{transform:scale(1);opacity:1;} }
+  @keyframes shake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-5px);} 75%{transform:translateX(5px);} }
+  @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:.6;} }
+  .kicker { font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--acc); }
+  h2 { font-size:23px; margin:4px 0 0; letter-spacing:-.01em; }
+  h3 { margin:0; font-size:15px; }
+  p { line-height:1.55; font-size:15.5px; color:var(--soft); margin:0; }
+  b, strong { color:var(--ink); }
+  .muted { color:var(--mute); font-size:13px; }
   .center { text-align:center; }
-  .btn { display:block; margin:0 auto; background:linear-gradient(135deg,var(--purple-deep),var(--pink)); color:#fff; border:none; border-radius:16px; padding:14px 26px; font-size:16px; font-weight:800; cursor:pointer; box-shadow:0 10px 24px rgba(165,107,255,.4); transition:transform .12s; }
-  .btn:hover { transform:translateY(-2px); } .btn:disabled { opacity:.45; cursor:default; transform:none; }
-  .btn.ghost { background:transparent; border:2px solid var(--purple); box-shadow:none; color:#e9dcff; padding:10px 18px; font-size:14px; }
+  .btn { display:block; margin:0 auto; background:var(--acc); color:#fff; border:none; border-radius:12px; padding:13px 24px; font:inherit; font-size:15.5px; font-weight:700; cursor:pointer; transition:transform .1s, filter .1s; }
+  .btn:hover { filter:brightness(1.08); } .btn:active { transform:scale(.98); } .btn:disabled { opacity:.4; cursor:default; filter:none; }
+  .btn.ghost { background:transparent; border:1px solid var(--line); color:var(--soft); padding:10px 16px; font-size:14px; }
   .btnrow { display:flex; gap:12px; justify-content:center; align-items:center; flex-wrap:wrap; } .btnrow .btn { margin:0; }
-  .input { width:100%; min-width:0; padding:13px 15px; border-radius:14px; border:2px solid var(--line); background:rgba(14,6,32,.7); color:var(--ink); font-size:16px; }
-  .input:focus { outline:none; border-color:var(--purple); }
-  .row { display:flex; gap:10px; } .row .btn { white-space:nowrap; margin:0; }
-  .err { color:var(--red); font-size:14px; text-align:center; min-height:18px; }
-  .link-btn { display:inline-block; background:rgba(52,28,98,.85); color:#e9dcff; border:2px solid var(--purple); border-radius:14px; padding:11px 18px; font-weight:800; text-decoration:none; font-size:15px; }
-  .meme { max-height:150px; max-width:100%; border-radius:14px; display:block; margin:0 auto; border:2px solid var(--line); }
-  .qmark { width:62px; height:62px; flex:none; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:36px; font-weight:900; background:radial-gradient(circle at 35% 30%,#8a52ff,#3b1a80); border:3px solid #e6d4ff; }
-  .head { display:flex; gap:14px; align-items:center; } .head h2 { text-align:left; font-size:21px; } .head p { font-size:14.5px; margin-top:4px; }
-  .fb { padding:12px 14px; border-radius:12px; font-size:14px; font-weight:700; animation:pop .3s; }
-  .fb.ok { background:rgba(86,230,149,.15); color:var(--green); border:1px solid var(--green); } .fb.no { background:rgba(255,107,122,.15); color:var(--red); border:1px solid var(--red); }
-  .fb.info { background:rgba(255,209,102,.1); color:var(--gold); border:1px solid var(--gold); }
-  /* ---- "fotos" ---- */
-  .foto { position:relative; aspect-ratio:4/3; border-radius:14px; background-size:cover; background-position:center; overflow:hidden; border:2px solid rgba(255,255,255,.15); }
-  .foto img { position:absolute; left:50%; bottom:7%; transform:translateX(-50%); height:70%; max-width:85%; object-fit:contain; filter:drop-shadow(0 6px 6px rgba(0,0,0,.35)); }
-  .tag { position:absolute; top:6px; left:6px; font-size:11.5px; font-weight:900; padding:3px 8px; border-radius:10px; color:#fff; background:rgba(14,6,32,.82); }
-  .tag.r { left:auto; right:6px; }
-  .t-Fogo { background:#e8692b !important; } .t-Água { background:#3d7fe0 !important; } .t-Planta { background:#3f9e45 !important; }
+  .input, textarea { width:100%; min-width:0; padding:12px 14px; border-radius:12px; border:1px solid var(--line); background:#0f1326; color:var(--ink); font:inherit; font-size:15.5px; }
+  textarea { min-height:96px; resize:vertical; line-height:1.45; }
+  .input:focus, textarea:focus { outline:none; border-color:var(--acc); }
+  .row { display:flex; gap:10px; } .row .btn { white-space:nowrap; margin:0; padding:12px 18px; }
+  .err { color:var(--no); font-size:14px; text-align:center; min-height:18px; }
+  .link-btn { display:inline-flex; gap:8px; align-items:center; background:var(--card2); color:var(--ink); border:1px solid var(--line); border-radius:12px; padding:10px 16px; font-weight:700; text-decoration:none; font-size:14.5px; }
+  .fb { padding:11px 14px; border-radius:12px; font-size:14px; font-weight:600; animation:pop .25s; line-height:1.45; }
+  .fb.ok { background:rgba(61,214,165,.1); color:var(--ok); border:1px solid rgba(61,214,165,.4); } .fb.no { background:rgba(255,107,129,.1); color:var(--no); border:1px solid rgba(255,107,129,.4); }
+  .fb.info { background:rgba(139,124,255,.1); color:#d1cbff; border:1px solid rgba(139,124,255,.4); }
+  .fb span.n { font-weight:400; color:var(--soft); }
+  .box { background:var(--card2); border:1px solid var(--line); border-radius:14px; padding:14px; } .box > * + * { margin-top:10px; }
+  /* grade de fotos */
+  .grid3 { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
   .grid4 { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
-  .pcard { background:var(--bg2); border:2px solid transparent; border-radius:16px; padding:8px; display:flex; flex-direction:column; gap:7px; }
-  .pcard .nm { font-weight:800; font-size:13px; text-align:center; }
-  .seg { display:flex; gap:6px; } .seg button { flex:1; border:2px solid var(--line); background:rgba(14,6,32,.6); color:#e2d3fb; border-radius:10px; padding:6px 4px; font-weight:800; font-size:12.5px; cursor:pointer; }
-  .seg button.on.y { background:rgba(86,230,149,.2); border-color:var(--green); color:var(--green); } .seg button.on.n { background:rgba(255,107,122,.2); border-color:var(--red); color:var(--red); }
-  .ficha { font-size:11.5px; border:1px dashed var(--line); background:transparent; color:#cdb8f3; border-radius:10px; padding:4px; cursor:pointer; }
-  .ficha.open { border-style:solid; border-color:var(--gold); color:var(--gold); font-weight:800; }
-  .pcard.right { border-color:var(--green); } .pcard.wrong { border-color:var(--red); }
-  @media (min-width:761px){ .compact .foto { aspect-ratio:16/9; } .compact .pcard { gap:5px; padding:6px; } .compact .nm { font-size:12.5px; } }
-  .pv .foto { max-width:240px; margin:0 auto; }
+  .grid6 { display:grid; grid-template-columns:repeat(6,1fr); gap:8px; }
+  .pc { background:var(--card2); border:1px solid var(--line); border-radius:14px; padding:8px; display:flex; flex-direction:column; gap:7px; }
+  .pc.right { border-color:var(--ok); box-shadow:0 0 0 1px var(--ok) inset; } .pc.wrong { border-color:var(--no); box-shadow:0 0 0 1px var(--no) inset; }
+  .ph { position:relative; aspect-ratio:4/3; border-radius:10px; overflow:hidden; background:#0b0e1c; }
+  .ph img.real { width:100%; height:100%; object-fit:cover; display:block; }
+  .tag { position:absolute; top:6px; left:6px; font-size:11.5px; font-weight:700; padding:3px 8px; border-radius:8px; color:#fff; background:rgba(10,12,26,.82); backdrop-filter:blur(4px); }
+  .tag.r { left:auto; right:6px; }
+  .cap { font-size:12.5px; color:var(--soft); text-align:center; } .cap b { color:var(--ink); }
+  .q { font-size:11.5px; font-weight:700; color:var(--mute); text-transform:uppercase; letter-spacing:.05em; }
+  .seg { display:flex; gap:5px; } .seg button { flex:1; border:1px solid var(--line); background:#0f1326; color:var(--soft); border-radius:9px; padding:7px 4px; font:inherit; font-weight:700; font-size:12.5px; cursor:pointer; }
+  .seg button.on { background:rgba(139,124,255,.2); border-color:var(--acc); color:#fff; }
+  .seg button.on.y { background:rgba(61,214,165,.16); border-color:var(--ok); color:var(--ok); } .seg button.on.n { background:rgba(255,107,129,.16); border-color:var(--no); color:var(--no); }
   .chips { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; }
-  .chip { background:var(--bg2); border:2px solid var(--line); color:#e9dcff; border-radius:20px; padding:9px 16px; font-size:14px; font-weight:800; cursor:pointer; }
-  .chip.on { background:linear-gradient(135deg,var(--purple-deep),var(--pink)); border-color:transparent; color:#fff; }
-  /* treinador */
-  .pick { cursor:pointer; position:relative; transition:transform .1s; } .pick:hover { transform:translateY(-2px); }
-  .pick.on { border-color:var(--gold); box-shadow:0 0 0 2px var(--gold) inset; }
-  .pick.on::after { content:'✓'; position:absolute; top:12px; right:14px; width:24px; height:24px; border-radius:50%; background:var(--gold); color:#2b1a00; font-weight:900; display:flex; align-items:center; justify-content:center; }
-  .counter { font-weight:900; color:var(--gold); }
-  .result { background:rgba(14,6,32,.6); border:1px solid var(--line); border-radius:16px; padding:14px; } .result > * + * { margin-top:10px; }
-  .regras { font-family:ui-monospace,Consolas,monospace; font-size:13.5px; background:rgba(10,4,26,.85); border-radius:10px; padding:8px 12px; color:#ffd166; }
-  /* deck */
-  .timer-bar { height:10px; background:rgba(14,6,32,.7); border-radius:8px; overflow:hidden; } .timer-fill { height:100%; width:100%; background:linear-gradient(90deg,var(--gold),var(--pink)); }
-  .situation { background:var(--bg2); border:2px dashed var(--purple); border-radius:16px; padding:20px; font-size:18px; text-align:center; }
-  .two { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-  .opt { border:none; border-radius:18px; padding:20px 12px; color:#fff; font-weight:900; font-size:16px; cursor:pointer; box-shadow:0 8px 18px rgba(0,0,0,.35); display:flex; flex-direction:column; align-items:center; gap:6px; }
-  .opt .e { font-size:30px; } .o0 { background:linear-gradient(160deg,#4ee08a,#1f9e5c); } .o1 { background:linear-gradient(160deg,#ff9f43,#d4541c); }
-  .opt.correct { outline:4px solid #fff; animation:pop .4s; } .opt.wrong { opacity:.4; }
-  .lightning { color:var(--gold); font-weight:900; }
-  /* conserte */
-  .vicio { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; font-size:13px; } .vicio span { background:rgba(14,6,32,.6); border:1px solid var(--line); border-radius:12px; padding:6px 10px; }
-  .builder { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
-  .slot { background:var(--bg2); border-radius:16px; padding:12px; } .slot > * + * { margin-top:8px; }
-  select.input { padding:10px 12px; font-size:15px; }
-  .rk { background:var(--bg2); border:1px solid var(--line); border-radius:16px; padding:10px 16px; max-width:420px; margin:0 auto; width:100%; }
-  .rk h4 { margin:0 0 6px; font-size:12px; letter-spacing:.07em; text-transform:uppercase; color:#b79ce8; text-align:center; }
-  .rk .r { display:flex; justify-content:space-between; gap:10px; padding:3px 0; font-size:14.5px; } .rk .r b { color:var(--gold); }
-  .rk .me { margin-top:8px; padding-top:8px; border-top:1px dashed var(--line); text-align:center; font-weight:800; color:var(--gold); }
-  .big { font-size:54px; font-weight:900; color:var(--gold); text-align:center; animation:pop .5s; }
-  .decor img { position:fixed; pointer-events:none; z-index:0; filter:drop-shadow(0 10px 14px rgba(8,2,24,.55)); animation:bob 4.2s ease-in-out infinite; }
-  .d1{left:1.5vw;bottom:3vh;height:126px} .d2{right:1.5vw;bottom:2vh;height:138px;animation-delay:.6s} .d3{left:2vw;top:14vh;height:96px;animation-delay:1.2s} .d4{right:2vw;top:13vh;height:96px;animation-delay:.3s}
-  @media (max-width:1260px){ .d3,.d4{display:none;} .d1{height:88px;left:0} .d2{height:96px;right:0} }
-  @media (max-width:760px){ .grid4{grid-template-columns:repeat(2,1fr);} .builder{grid-template-columns:1fr;} .card{padding:20px 14px;} .d1,.d2{display:none;} .head{align-items:flex-start;} .badge{max-width:32%;} }
+  .chip { background:var(--card2); border:1px solid var(--line); color:var(--soft); border-radius:999px; padding:9px 15px; font:inherit; font-size:14px; font-weight:600; cursor:pointer; }
+  .chip.on { background:var(--acc); border-color:var(--acc); color:#fff; }
+  .chip.good { border-color:var(--ok); color:var(--ok); background:rgba(61,214,165,.12); } .chip.bad { border-color:var(--no); color:var(--no); background:rgba(255,107,129,.12); }
+  /* Pokémon (treinador) */
+  .foto { position:relative; aspect-ratio:4/3; border-radius:10px; background-size:cover; background-position:center; overflow:hidden; }
+  .foto img { position:absolute; left:50%; bottom:7%; transform:translateX(-50%); height:70%; max-width:85%; object-fit:contain; filter:drop-shadow(0 6px 6px rgba(0,0,0,.35)); }
+  .t-Fogo { background:#d9622b !important; } .t-Água { background:#3772d6 !important; } .t-Planta { background:#3a8f42 !important; }
+  .pick { cursor:pointer; transition:transform .1s; } .pick:hover { transform:translateY(-2px); }
+  .pick.on { border-color:var(--warn); box-shadow:0 0 0 2px var(--warn) inset; }
+  .nm { font-weight:700; font-size:13px; text-align:center; }
+  .counter { font-weight:800; color:var(--warn); }
+  .regras { font-family:ui-monospace,Consolas,monospace; font-size:13.5px; background:#0b0e1c; border:1px solid var(--line); border-radius:10px; padding:9px 12px; color:var(--warn); }
+  .mini .foto { aspect-ratio:1; } .mini .nm { font-size:11px; }
+  /* auditoria */
+  .timer-bar { height:8px; background:#0b0e1c; border-radius:8px; overflow:hidden; } .timer-fill { height:100%; width:100%; background:linear-gradient(90deg,var(--acc),var(--acc2)); }
+  .situation { background:var(--card2); border:1px solid var(--line); border-left:4px solid var(--acc); border-radius:12px; padding:18px; font-size:17.5px; line-height:1.5; color:var(--ink); }
+  .three { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+  .opt { border:1px solid var(--line); background:var(--card2); border-radius:14px; padding:16px 10px; color:var(--ink); font:inherit; font-weight:700; font-size:15px; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:6px; }
+  .opt .e { font-size:24px; } .opt:hover { border-color:var(--acc); }
+  .opt.correct { border-color:var(--ok); background:rgba(61,214,165,.14); animation:pop .3s; } .opt.wrong { border-color:var(--no); opacity:.6; }
+  /* plano */
+  .plist { display:grid; gap:8px; }
+  .pitem { display:flex; gap:10px; align-items:flex-start; text-align:left; background:var(--card2); border:1px solid var(--line); border-radius:12px; padding:11px 13px; font:inherit; color:var(--soft); font-size:14.5px; cursor:pointer; line-height:1.4; }
+  .pitem .ck { flex:none; width:20px; height:20px; border-radius:6px; border:2px solid var(--line); margin-top:1px; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:900; }
+  .pitem.on { border-color:var(--acc); color:var(--ink); } .pitem.on .ck { background:var(--acc); border-color:var(--acc); color:#fff; }
+  .pitem.good { border-color:var(--ok); } .pitem.bad { border-color:var(--no); } .pitem .why { display:block; font-size:12.5px; color:var(--no); margin-top:3px; }
+  /* ranking */
+  .rk { background:var(--card2); border:1px solid var(--line); border-radius:14px; padding:12px 16px; max-width:420px; margin-left:auto; margin-right:auto; width:100%; }
+  .rk h4 { margin:0 0 6px; font-size:12px; letter-spacing:.07em; text-transform:uppercase; color:var(--mute); text-align:center; }
+  .rk .r { display:flex; justify-content:space-between; gap:10px; padding:3px 0; font-size:14.5px; } .rk .r b { color:var(--warn); }
+  .rk .me { margin-top:8px; padding-top:8px; border-top:1px dashed var(--line); text-align:center; font-weight:700; color:var(--warn); }
+  .big { font-size:52px; font-weight:800; color:var(--warn); text-align:center; animation:pop .4s; }
+  .icon { width:54px; height:54px; border-radius:16px; display:flex; align-items:center; justify-content:center; font-size:28px; background:linear-gradient(135deg,var(--acc),var(--acc2)); margin:0 auto; }
+  .head { display:flex; gap:14px; align-items:center; } .head .icon { margin:0; flex:none; } .head p { font-size:14.5px; margin-top:4px; }
+  .legend { display:flex; gap:14px; justify-content:center; font-size:12.5px; color:var(--mute); flex-wrap:wrap; }
+  @media (max-width:860px){ .grid3{grid-template-columns:repeat(2,1fr);} .grid6{grid-template-columns:repeat(3,1fr);} }
+  @media (max-width:640px){ .grid4{grid-template-columns:repeat(2,1fr);} .three{grid-template-columns:1fr;} .card{padding:20px 14px;} .head{align-items:flex-start;} .badge{max-width:34%;} }
   @media (prefers-reduced-motion:reduce){ *{animation:none !important;} }
 </style>
 </head>
 <body>
-<div class="decor" aria-hidden="true">
-  <img class="d1" src="/img/deco-pikachu.png" alt=""><img class="d2" src="/img/deco-charizard.png" alt="">
-  <img class="d3" src="/img/deco-bulbasaur.png" alt=""><img class="d4" src="/img/deco-squirtle.png" alt="">
-</div>
 <div class="wrap" id="wrap">
   <div class="topbar"><span class="badge" id="nickBadge">Aula</span><span class="dchip" id="stageChip" style="display:none"></span><span class="badge score">⭐ <span id="score">0</span> pts</span></div>
   <div class="steps" id="steps"></div>
@@ -112,10 +116,9 @@
 </div>
 <script>
 const app = document.getElementById('app');
-let me = JSON.parse(localStorage.getItem('aula_ia_me') || 'null');
+let me = JSON.parse(localStorage.getItem('aula_ia2_me') || 'null');
 let curStage = null, lastSeq = -1, timer = null, stageTimer = null, score = 0, routing = 0, lastIdx = -1;
-const ORDER = [['misterio', 'Mistério'], ['pesquisa', 'Pesquisa'], ['treino', 'Treinador'], ['colou', 'Colou?'], ['conserte', 'Conserte']];
-const MEMES = { lobby: 'spongebob', misterio: 'vulture', pesquisa: 'catsidewalk', treino: 'mrbean', colou: 'grinch', conserte: 'thinking', closed: 'catsniff' };
+const ORDER = [['detetive', '1 · Detetive'], ['pesquisa', '3 · Pesquisa'], ['treino', '4 · Treinador'], ['auditoria', '5 · Auditoria'], ['plano', '6 · Plano de dados']];
 const TIPO_E = { 'Fogo': '🔥', 'Água': '💧', 'Planta': '🌿' };
 const FUNDO_N = { vulcao: 'vulcão', mar: 'mar', grama: 'grama' };
 
@@ -127,6 +130,7 @@ const clearTimer = () => { if (timer) { clearInterval(timer); timer = null; } };
 const wide = (on) => document.getElementById('wrap').classList.toggle('wide', !!on);
 const foto = (pk, fundo, extra = '') => `<div class="foto" style="background-image:url('/img/bg-${fundo}.jpg')"><img src="/img/pk-${pk}.png" alt="${esc(pk)}">${extra}</div>`;
 const tipoTag = (t, cls = '') => `<span class="tag ${cls} t-${t}">${TIPO_E[t] || ''} ${t}</span>`;
+const isMsg = (e) => !['closed', 'reset'].includes(e.message);
 
 function paintSteps(stage) {
   const i = ORDER.findIndex((o) => o[0] === stage); if (i >= 0) lastIdx = i;
@@ -136,7 +140,7 @@ function paintSteps(stage) {
 async function api(action, extra = {}) {
   const r = await fetch('/api/play', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action, id: me && me.id, ...extra }) });
   let j = {}; try { j = await r.json(); } catch {}
-  if (r.status === 401 && j.error === 'unknown_player') { localStorage.removeItem('aula_ia_me'); me = null; showJoin(); throw new Error('reset'); }
+  if (r.status === 401 && j.error === 'unknown_player') { localStorage.removeItem('aula_ia2_me'); me = null; showJoin(); throw new Error('reset'); }
   if (r.status === 409 && j.error === 'closed') { if (j.timeup) showTimeUp(j.stage); else route(j.stage); throw new Error('closed'); }
   if (!r.ok) throw new Error(j.error || 'erro');
   return j;
@@ -154,24 +158,25 @@ function stageChip(ms, stage) {
   tick(); stageTimer = setInterval(tick, 250);
 }
 const playing = (stage) => { app.dataset.playing = stage; };
+const later = (stage, ms) => setTimeout(() => { if (curStage === stage) waitDone(stage); }, ms);
 
 // ---------- entrada ----------
 function showJoin(msg) {
   clearTimer(); stageChip(null); wide(false); playing(''); document.getElementById('nickBadge').textContent = 'Aula'; paintSteps('lobby');
   app.innerHTML = `
-    <div class="qmark" style="margin:0 auto">?</div>
-    <h2>A IA adora colar</h2>
-    <p class="center">Escolha um apelido fictício para entrar. <strong>Nada de nome real!</strong></p>
+    <div class="icon">🧠</div>
+    <div class="center"><div class="kicker">Da API à IA</div><h2>A IA só aprende o que os dados mostram</h2></div>
+    <p class="center">Escolha um apelido para entrar. Ele aparece no ranking da turma.</p>
     <input class="input" id="nick" maxlength="24" placeholder="Seu apelido" autocomplete="off">
     <div class="err" id="joinErr">${msg || ''}</div>
-    <button class="btn" id="joinBtn">Entrar</button>`;
+    <button class="btn" id="joinBtn">Entrar na aula</button>`;
   const go = async () => {
     const nick = document.getElementById('nick').value; document.getElementById('joinBtn').disabled = true;
     try {
       const r = await fetch('/api/play', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'join', nick }) });
       const j = await r.json();
       if (!r.ok) { document.getElementById('joinErr').textContent = j.error || 'Erro ao entrar'; document.getElementById('joinBtn').disabled = false; return; }
-      me = { id: j.id, nick: j.nick }; localStorage.setItem('aula_ia_me', JSON.stringify(me));
+      me = { id: j.id, nick: j.nick }; localStorage.setItem('aula_ia2_me', JSON.stringify(me));
       document.getElementById('nickBadge').textContent = me.nick; setScore(0);
       fetch('/api/state').then((x) => x.json()).then((st) => { lastSeq = st.seq; route(st.stage); }).catch(() => route('lobby'));
     } catch { document.getElementById('joinErr').textContent = 'Sem conexão. Tente de novo.'; document.getElementById('joinBtn').disabled = false; }
@@ -183,19 +188,19 @@ function showJoin(msg) {
 // ---------- espera / tempo esgotado ----------
 async function showWait(kind, text) {
   clearTimer(); playing(''); wide(false);
-  const t = text || (kind === 'lobby' ? 'Você está dentro! Aguarde a professora liberar a primeira etapa.' : kind === 'closed' ? 'Etapa encerrada! Aguarde a professora liberar a próxima.' : 'Aguarde a professora liberar.');
-  app.innerHTML = `<img class="meme" src="/img/meme-${MEMES[kind] || 'spongebob'}.jpg" alt=""><h2>Aguarde a instrução</h2><p class="center">${t}</p><div id="rkBox"></div>`;
+  const t = text || (kind === 'lobby' ? 'Você está dentro! Aguarde a professora liberar a primeira atividade.' : kind === 'closed' ? 'Atividade encerrada. Aguarde a próxima.' : 'Aguarde a professora liberar.');
+  app.innerHTML = `<div class="icon">⏳</div><h2 class="center">Aguarde a próxima instrução</h2><p class="center">${t}</p><div id="rkBox"></div>`;
   if (kind !== 'closed') return;
   try {
     const r = await api('ranking'); if (curStage !== 'closed' || !r.top.length) return;
     const md = ['🥇', '🥈', '🥉', '4º', '5º'];
-    document.getElementById('rkBox').innerHTML = `<div class="rk"><h4>🏆 Ranking da turma</h4>${r.top.map((x, i) => `<div class="r"><span>${md[i]} ${esc(x.nick)}</span><b>${x.total}</b></div>`).join('')}${r.me ? `<div class="me">Você está em ${r.me.rank}º de ${r.count} · ${r.myTotal} pts</div>` : ''}</div>`;
+    document.getElementById('rkBox').innerHTML = `<div class="rk"><h4>Ranking da turma</h4>${r.top.map((x, i) => `<div class="r"><span>${md[i]} ${esc(x.nick)}</span><b>${x.total}</b></div>`).join('')}${r.me ? `<div class="me">Você está em ${r.me.rank}º de ${r.count} · ${r.myTotal} pts</div>` : ''}</div>`;
   } catch {}
 }
-const waitDone = (stage) => showWait(stage, 'Você terminou esta etapa! Aguarde a professora liberar a próxima.');
-function showTimeUp(stage) {
+const waitDone = (stage) => showWait(stage, 'Você concluiu esta atividade! Aguarde a professora liberar a próxima.');
+function showTimeUp() {
   clearTimer(); playing(''); wide(false);
-  app.innerHTML = `<img class="meme" src="/img/meme-catsniff.jpg" alt=""><h2>⏱️ Tempo esgotado!</h2><p class="center">Aguarde a professora liberar a próxima etapa.</p>`;
+  app.innerHTML = `<div class="icon">⏱️</div><h2 class="center">Tempo esgotado</h2><p class="center">Aguarde a professora liberar a próxima atividade.</p>`;
 }
 
 // ---------- roteamento ----------
@@ -212,167 +217,197 @@ async function route(stage) {
     if (d.done) return waitDone(stage);
     if (d.remainingMs === 0) return showTimeUp(stage);
     stageChip(d.remainingMs, stage); playing(stage);
-    ({ misterio: showMisterio, pesquisa: showPesquisa, treino: showTreino, colou: runColou, conserte: showConserte })[stage](d);
+    ({ detetive: showDetetive, pesquisa: showPesquisa, treino: showTreino, auditoria: runAuditoria, plano: showPlano })[stage](d);
   } catch (e) { /* closed/reset já tratados */ }
 }
 
-// ---------- 1) Mistério: a Pokédex que errou ----------
-function showMisterio(d) {
+// ---------- 1) Detetive de dados ----------
+function showDetetive(d) {
   wide(true);
-  const marks = d.cards.map(() => null); const pistas = new Set();
+  const marks = d.fotos.map(() => null), olhou = d.fotos.map(() => null); let regra = null;
   app.innerHTML = `
-    <div class="head"><div class="qmark">?</div><div><h2>A Pokédex que errou</h2><p>Esta Pokédex usa IA pra dizer o <b>tipo</b> do Pokémon pela foto. Confira na <b>ficha da PokéAPI</b> e marque se ela acertou ou errou.</p></div></div>
-    <div class="grid4 compact">${d.cards.map((c, i) => `
-      <div class="pcard" id="pc${i}">
-        ${foto(c.pk, c.fundo, `<span class="tag">🤖 IA: ${TIPO_E[c.guess]} ${c.guess}</span>`)}
-        <div class="nm">${esc(c.nome)}</div>
-        <button class="ficha" data-i="${i}">📄 ver ficha na PokéAPI</button>
-        <div class="seg"><button class="y" data-i="${i}" data-v="1">✅ Acertou</button><button class="n" data-i="${i}" data-v="0">❌ Errou</button></div>
+    <div class="head"><div class="icon">🔎</div><div><div class="kicker">Atividade 1 · Analisar</div><h2>Detetive de dados</h2>
+      <p>Esta IA diz se a foto é de um <b>cão</b> ou de um <b>lobo</b>. Para cada foto: ela <b>acertou</b>? E ela decidiu olhando o <b>animal</b> ou o <b>fundo</b>?</p></div></div>
+    <div class="grid3">${d.fotos.map((f, i) => `
+      <div class="pc" id="pc${i}">
+        <div class="ph"><img class="real" id="im${i}" src="/img/real/${f.id}.jpg" alt="${esc(f.legenda)}"><span class="tag">🤖 IA: ${f.ia} · ${f.conf}%</span></div>
+        <div class="cap">Na foto: <b>${esc(f.legenda)}</b></div>
+        <div class="q">A IA acertou?</div>
+        <div class="seg" data-k="m" data-i="${i}"><button class="y" data-v="1">Acertou</button><button class="n" data-v="0">Errou</button></div>
+        <div class="q">Onde ela olhou?</div>
+        <div class="seg" data-k="o" data-i="${i}"><button data-v="animal">No animal</button><button data-v="fundo">No fundo</button></div>
       </div>`).join('')}</div>
-    <p class="center"><b>Agora o mistério:</b> o que a IA estava olhando pra decidir? <span class="muted">(pode marcar mais de um)</span></p>
-    <div class="chips" id="pistas">${d.pistas.map((x) => `<button class="chip" data-p="${x}">${{ forma: '🔺 forma do Pokémon', cor: '🎨 cor', fundo: '🏞️ fundo da foto', tamanho: '📏 tamanho' }[x] || x}</button>`).join('')}</div>
+    <div class="box"><h3>Qual regra a IA aprendeu sozinha?</h3><div class="chips" id="regras">${d.regras.map((r, i) => `<button class="chip" data-r="${i}">${esc(r)}</button>`).join('')}</div></div>
     <div id="fb"></div>
-    <button class="btn" id="send">Enviar minha investigação</button>`;
-  app.querySelectorAll('.ficha').forEach((b) => b.onclick = () => { const c = d.cards[b.dataset.i]; b.classList.add('open'); b.textContent = `📄 tipo real: ${TIPO_E[c.real]} ${c.real}`; });
-  app.querySelectorAll('.seg button').forEach((b) => b.onclick = () => {
-    const i = Number(b.dataset.i); marks[i] = b.dataset.v === '1';
-    b.parentElement.querySelectorAll('button').forEach((x) => x.classList.toggle('on', x === b));
-  });
-  app.querySelectorAll('#pistas .chip').forEach((b) => b.onclick = () => { const p = b.dataset.p; pistas.has(p) ? pistas.delete(p) : pistas.add(p); b.classList.toggle('on', pistas.has(p)); });
+    <button class="btn" id="send">Enviar investigação</button>`;
+  app.querySelectorAll('.seg').forEach((g) => g.querySelectorAll('button').forEach((b) => b.onclick = () => {
+    const i = Number(g.dataset.i);
+    if (g.dataset.k === 'm') marks[i] = b.dataset.v === '1'; else olhou[i] = b.dataset.v;
+    g.querySelectorAll('button').forEach((x) => x.classList.toggle('on', x === b));
+  }));
+  app.querySelectorAll('#regras .chip').forEach((b) => b.onclick = () => { regra = Number(b.dataset.r); app.querySelectorAll('#regras .chip').forEach((x) => x.classList.toggle('on', x === b)); });
   document.getElementById('send').onclick = async () => {
     const fb = document.getElementById('fb');
-    if (marks.some((m) => m === null)) { fb.innerHTML = `<div class="fb no">Marque ✅ ou ❌ em todas as ${marks.length} fotos!</div>`; return; }
+    if (marks.some((m) => m === null) || olhou.some((o) => o === null)) { fb.innerHTML = '<div class="fb no">Responda as duas perguntas em todas as 6 fotos.</div>'; return; }
+    if (regra === null) { fb.innerHTML = '<div class="fb no">Escolha a regra que a IA aprendeu.</div>'; return; }
     try {
-      const r = await api('misterio_submit', { marks, pistas: [...pistas] });
+      const r = await api('detetive_submit', { marks, olhou, regra });
       playing(''); document.getElementById('send').disabled = true; addScore(r.points);
-      r.certo.forEach((ok, i) => document.getElementById('pc' + i).classList.add(marks[i] === ok ? 'right' : 'wrong'));
-      fb.innerHTML = `<div class="fb ok">+${r.points} pontos · você julgou certo ${r.marcasOk} de ${r.total} fotos</div>` +
-        `<div class="fb ${r.pistaCompleta ? 'ok' : 'info'}" style="margin-top:8px">${r.pistaCompleta ? '🕵️ Mistério resolvido: a IA estava colando pela <b>cor</b> E pelo <b>fundo</b>!' : '🤔 Quase! Repare no Magikarp (laranja) e no Charmander no mar… a IA olhava duas coisas.'}</div>`;
-      setTimeout(() => { if (curStage === 'misterio') waitDone('misterio'); }, 6000);
-    } catch (e) { if (!['closed', 'reset'].includes(e.message)) fb.innerHTML = `<div class="fb no">${esc(e.message)}</div>`; }
+      d.fotos.forEach((f, i) => {
+        const ok = marks[i] === r.certo[i] && olhou[i] === r.olhouCerto[i];
+        document.getElementById('pc' + i).classList.add(ok ? 'right' : 'wrong');
+        document.getElementById('im' + i).src = `/img/real/${f.id}-heat.jpg`;
+      });
+      app.querySelectorAll('#regras .chip').forEach((b) => { const k = Number(b.dataset.r); if (k === r.regraCerta) b.classList.add('good'); else if (k === regra) b.classList.add('bad'); });
+      fb.innerHTML = `<div class="fb ok">+${r.points} pontos · acertou/errou: ${r.marcasOk}/${r.total} · onde olhou: ${r.olhouOk}/${r.total}</div>
+        <div class="fb ${r.regraOk ? 'ok' : 'info'}" style="margin-top:8px">🔥 As fotos agora mostram o <b>mapa de calor</b>: onde a IA olhou. ${r.regraOk ? 'Você descobriu o atalho: <b>neve = lobo</b>.' : 'Repare: o malamute tem orelha pontuda e pelo cinza, e a IA acertou. O que muda nas fotos em que ela erra? <b>A neve.</b>'}</div>
+        <div class="legend"><span>🔴 olhou muito</span><span>🔵 olhou pouco</span><span>(mapa simulado para a aula)</span></div>`;
+      later('detetive', 12000);
+    } catch (e) { if (isMsg(e)) fb.innerHTML = `<div class="fb no">${esc(e.message)}</div>`; }
   };
 }
 
 // ---------- 3) Pesquisa no artigo ----------
 function showPesquisa(d) {
+  const state = { answered: [...d.answered], enviou: d.enviou };
+  const check = () => { if (state.answered.every(Boolean) && state.enviou) { playing(''); later('pesquisa', 2500); } };
   app.innerHTML = `
-    <h2>📄 Pesquisa: o que a ciência diz?</h2>
-    <p class="center">Leia o <b>resumo</b> e a <b>Figura 1</b> do artigo e responda (em português ou inglês).</p>
-    <div class="fb info" style="font-weight:600">${esc(d.citacao)}<br><span class="muted">Revista com JCR · link aberto (versão do arXiv)</span></div>
-    <div class="center"><a class="link-btn" href="${d.url}" target="_blank" rel="noopener">🔗 Abrir o artigo</a></div>
-    ${d.prompts.map((q, i) => `<div class="slot" id="q${i}"><p style="color:#fff;font-size:15px">${i + 1}. ${esc(q)}</p><form class="row" data-i="${i}"><input class="input" maxlength="80" placeholder="Sua resposta" ${d.answered[i] ? 'disabled value="✅ respondida"' : ''}><button class="btn" ${d.answered[i] ? 'disabled' : ''}>Enviar</button></form><div class="fbz"></div></div>`).join('')}`;
+    <div class="head"><div class="icon">📄</div><div><div class="kicker">Atividade 3 · Pesquisa em artigo científico</div><h2>O que a pesquisa brasileira diz?</h2></div></div>
+    <div class="box"><p style="font-size:14px">${esc(d.citacao)}</p><div class="btnrow" style="justify-content:flex-start"><a class="link-btn" href="${d.url}" target="_blank" rel="noopener">📄 Abrir o artigo (PDF)</a><a class="link-btn" href="${d.doi}" target="_blank" rel="noopener">🔗 DOI</a></div></div>
+    <p><b>Parte 1 · Localize no texto</b> (as páginas estão indicadas)</p>
+    ${d.prompts.map((q, i) => `<div class="box" id="q${i}"><p style="color:var(--ink);font-size:15px">${i + 1}. ${esc(q.prompt)}</p><form class="row" data-i="${i}"><input class="input" maxlength="80" placeholder="Sua resposta" ${d.answered[i] ? 'disabled value="✅ respondida"' : ''}><button class="btn" ${d.answered[i] ? 'disabled' : ''}>Enviar</button></form><div class="fbz"></div></div>`).join('')}
+    <p><b>Parte 2 · Pergunta norteadora</b> (vai para o mural da turma)</p>
+    <div class="box"><p style="color:var(--ink);font-size:15.5px;font-weight:600">${esc(d.norteadora)}</p>
+      <textarea id="nort" maxlength="400" placeholder="Use o que você leu no artigo..." ${d.enviou ? 'disabled' : ''}>${d.enviou ? '✅ resposta enviada' : ''}</textarea>
+      <div class="btnrow" style="justify-content:space-between"><span class="muted" id="nc">mínimo ${d.minNorteadora} caracteres</span><button class="btn" id="nsend" ${d.enviou ? 'disabled' : ''}>📌 Enviar para o mural</button></div><div id="nfb"></div></div>`;
   app.querySelectorAll('form').forEach((f) => f.onsubmit = async (e) => {
     e.preventDefault(); const i = Number(f.dataset.i); const inp = f.querySelector('input'); if (!inp.value.trim()) return;
     const box = f.parentElement.querySelector('.fbz');
     try {
       const r = await api('pesquisa_answer', { qi: i, text: inp.value });
-      if (r.correct) { if (!r.already) addScore(r.points); inp.disabled = true; f.querySelector('button').disabled = true; box.innerHTML = `<div class="fb ok">✅ Isso! +${r.points || 0} pontos</div>`; if (r.allDone) { playing(''); setTimeout(() => { if (curStage === 'pesquisa') waitDone('pesquisa'); }, 1800); } }
-      else box.innerHTML = `<div class="fb no" style="animation:shake .4s">Ainda não… olhe de novo no artigo!</div>`;
+      if (r.correct) { if (!r.already) addScore(r.points); state.answered[i] = true; inp.disabled = true; f.querySelector('button').disabled = true; box.innerHTML = `<div class="fb ok">✅ Isso! +${r.points || 0} pontos</div>`; check(); }
+      else box.innerHTML = `<div class="fb no" style="animation:shake .4s">Ainda não. <span class="n">Dica: ${esc(r.dica || 'releia o trecho indicado.')}</span></div>`;
     } catch {}
   });
+  const ta = document.getElementById('nort');
+  ta.oninput = () => { document.getElementById('nc').textContent = `${ta.value.trim().length}/${d.minNorteadora} caracteres`; };
+  document.getElementById('nsend').onclick = async () => {
+    const nfb = document.getElementById('nfb');
+    if (ta.value.trim().length < d.minNorteadora) { nfb.innerHTML = `<div class="fb no">Escreva pelo menos ${d.minNorteadora} caracteres.</div>`; return; }
+    try {
+      const r = await api('pesquisa_norteadora', { text: ta.value });
+      if (!r.already) addScore(r.points); state.enviou = true; ta.disabled = true; document.getElementById('nsend').disabled = true;
+      nfb.innerHTML = `<div class="fb ok">📌 No mural! +${r.points || 0} pontos</div>`; check();
+    } catch (e) { if (isMsg(e)) nfb.innerHTML = `<div class="fb no">${esc(e.message)}</div>`; }
+  };
 }
 
 // ---------- 4) Treinador da Pokédex ----------
 function showTreino(d) {
   wide(true);
-  const sel = new Set();
+  const sel = new Set(); let prev = null; let tent = d.tentativas;
   app.innerHTML = `
-    <div class="head"><div class="qmark">🎓</div><div><h2>Treinador da Pokédex</h2><p>Escolha <b>${d.escolher} fotos</b> para ensinar a IA. Depois ela faz uma prova com 4 fotos que <b>nunca viu</b>. Consegue fazer ela acertar todas?</p></div></div>
-    <div class="grid4" id="pool">${d.pool.map((c) => `<div class="pcard pick" data-id="${c.id}">${foto(c.pk, c.fundo, tipoTag(c.tipo))}<div class="nm">${esc(c.nome)} <span class="muted">· ${c.cor}</span></div></div>`).join('')}</div>
+    <div class="head"><div class="icon">🎓</div><div><div class="kicker">Atividade 4 · Jogo · Aplicar</div><h2>Treinador de IA: nível difícil</h2>
+      <p>Escolha <b>${d.escolher} fotos</b> para treinar a IA. Ela faz uma prova com <b>${d.teste.length} fotos que nunca viu</b>, em que cor e fundo enganam. Antes de treinar, <b>preveja a nota</b>. Você tem <b>${d.maxTentativas} tentativas</b>.</p></div></div>
+    <div class="box"><h3>A prova (a IA nunca viu estas fotos)</h3><div class="grid6 mini">${d.teste.map((c) => `<div>${foto(c.pk, c.fundo)}<div class="nm">${esc(c.nome)}</div></div>`).join('')}</div></div>
+    <h3>Fotos disponíveis para o treino</h3>
+    <div class="grid4" id="pool">${d.pool.map((c) => `<div class="pc pick" data-id="${c.id}">${foto(c.pk, c.fundo, tipoTag(c.tipo))}<div class="nm">${esc(c.nome)} <span class="muted">· ${c.cor} · ${FUNDO_N[c.fundo]}</span></div></div>`).join('')}</div>
+    <div class="box"><h3>Sua previsão: quantas das ${d.teste.length} a IA vai acertar?</h3><div class="chips" id="prev">${Array.from({ length: d.teste.length + 1 }, (_, k) => `<button class="chip" data-v="${k}">${k}</button>`).join('')}</div><p class="muted center">Acertar a previsão vale +40 pontos.</p></div>
     <div class="btnrow"><span class="counter" id="cnt">0/${d.escolher} escolhidas</span><button class="btn" id="train" disabled>🧠 Treinar a IA</button></div>
-    <div id="out"></div>`;
+    <div id="out">${tent ? `<p class="muted center">Tentativas usadas: ${tent}/${d.maxTentativas} · melhor nota: ${d.melhor}/${d.teste.length}</p>` : ''}</div>`;
   const cnt = document.getElementById('cnt'), train = document.getElementById('train');
-  const upd = () => { cnt.textContent = `${sel.size}/${d.escolher} escolhidas`; train.disabled = sel.size !== d.escolher; };
+  const upd = () => { cnt.textContent = `${sel.size}/${d.escolher} escolhidas`; train.disabled = sel.size !== d.escolher || prev === null; };
   app.querySelectorAll('.pick').forEach((el) => el.onclick = () => {
     const id = el.dataset.id;
     if (sel.has(id)) sel.delete(id); else if (sel.size < d.escolher) sel.add(id);
     el.classList.toggle('on', sel.has(id)); upd();
   });
-  if (d.tentativas) document.getElementById('out').innerHTML = `<p class="muted">Tentativas até agora: ${d.tentativas} · melhor nota: ${d.melhor}/4</p>`;
+  app.querySelectorAll('#prev .chip').forEach((b) => b.onclick = () => { prev = Number(b.dataset.v); app.querySelectorAll('#prev .chip').forEach((x) => x.classList.toggle('on', x === b)); upd(); });
   train.onclick = async () => {
     train.disabled = true;
     try {
-      const r = await api('treino_train', { ids: [...sel] });
-      setScore(score - 0); api('me').then((m) => setScore(m.total)).catch(() => {});
+      const r = await api('treino_train', { ids: [...sel], previsao: prev });
+      api('me').then((m) => setScore(m.total)).catch(() => {});
       const motivo = (x) => x.por === 'cor' ? 'colou pela cor' : x.por === 'fundo' ? 'colou pelo fundo' : x.por === 'nunca-viu' ? 'nunca viu esse tipo' : 'olhou o Pokémon';
+      const T = r.total;
       document.getElementById('out').innerHTML = `
-        <div class="result">
-          <h3>${r.acertos === 4 ? '🎉 4/4! Sua IA aprendeu de verdade!' : `📝 Nota da IA: ${r.acertos}/4`}</h3>
-          ${r.regras.length ? `<p style="font-size:14.5px">Sua IA aprendeu estes <b>atalhos</b>:</p><div class="regras">${r.regras.map(esc).join('<br>')}</div>` : `<p style="font-size:14.5px">Nenhum atalho funcionava nos seus exemplos, então ela teve que aprender <b>o Pokémon</b>. 💜</p>`}
-          <div class="grid4">${r.prova.map((x) => `<div class="pcard ${x.ok ? 'right' : 'wrong'}">${foto(x.pk, x.fundo, `<span class="tag">🤖 ${TIPO_E[x.palpite] || ''} ${esc(x.palpite)}</span><span class="tag r">${x.ok ? '✅' : '❌'}</span>`)}<div class="nm">${esc(x.nome)} <span class="muted">· ${motivo(x)}</span></div></div>`).join('')}</div>
-          <p class="muted">${r.done ? 'Etapa concluída!' : `Tentativa ${r.tentativas} · melhor nota ${r.melhor}/4 · ${r.points} pts. Troque as fotos e treine de novo!`}</p>
-          ${r.done ? '' : '<div class="btnrow"><button class="btn ghost" id="stop">Já está bom, terminar</button></div>'}
+        <div class="box">
+          <h3>${r.acertos === T ? `🎉 ${T}/${T}! Sua IA aprendeu de verdade.` : `Nota da IA: ${r.acertos}/${T}`}</h3>
+          <div class="fb ${r.previuAgora ? 'ok' : 'info'}">Você previu ${r.previsao}. ${r.previuAgora ? 'Acertou a previsão: você entendeu como ela aprende!' : 'A previsão não bateu. O que você não esperava?'}</div>
+          ${r.regras.length ? `<p>A IA encontrou estes <b>atalhos</b> nas suas fotos de treino:</p><div class="regras">${r.regras.map(esc).join('<br>')}</div>` : `<p>Nenhum atalho funcionava nas suas fotos, então ela precisou aprender <b>a forma do Pokémon</b>.</p>`}
+          <div class="grid6 mini">${r.prova.map((x) => `<div class="pc ${x.ok ? 'right' : 'wrong'}" style="padding:5px">${foto(x.pk, x.fundo, `<span class="tag">${TIPO_E[x.palpite] || ''} ${esc(x.palpite)}</span>`)}<div class="nm">${x.ok ? '✅' : '❌'} ${esc(x.nome)}<br><span class="muted">${motivo(x)}</span></div></div>`).join('')}</div>
+          <div class="fb info">💡 Como esta IA funciona: uma pista (fundo ou cor) vira atalho se, sozinha, acerta <b>5 das 6</b> fotos do treino. Para quebrar um atalho, você precisa de <b>pelo menos 2 contraexemplos</b>.</div>
+          <p class="muted center">${r.done ? 'Atividade concluída!' : `Tentativa ${r.tentativas}/${r.maxTentativas} · melhor nota ${r.melhor}/${T} · ${r.points} pts. Troque as fotos e tente de novo.`}</p>
+          ${r.done ? '' : '<div class="btnrow"><button class="btn ghost" id="stop">Encerrar com esta nota</button></div>'}
         </div>`;
       document.getElementById('out').scrollIntoView({ behavior: 'smooth', block: 'start' });
-      if (r.done) { playing(''); setTimeout(() => { if (curStage === 'treino') waitDone('treino'); }, 5000); }
+      if (r.done) { playing(''); later('treino', 9000); }
       else document.getElementById('stop').onclick = async () => { try { await api('treino_done'); playing(''); waitDone('treino'); } catch {} };
-      upd();
-    } catch (e) { if (!['closed', 'reset'].includes(e.message)) document.getElementById('out').innerHTML = `<div class="fb no">${esc(e.message)}</div>`; upd(); }
+      prev = null; app.querySelectorAll('#prev .chip').forEach((x) => x.classList.remove('on')); upd();
+    } catch (e) { if (isMsg(e)) document.getElementById('out').innerHTML = `<div class="fb no">${esc(e.message)}</div>`; upd(); }
   };
 }
 
-// ---------- 5) Aprendeu ou colou? ----------
-async function runColou() {
-  let n; try { n = await api('colou_next'); } catch { return; }
-  if (n.done) { playing(''); return waitDone('colou'); }
+// ---------- 5) Auditoria relâmpago ----------
+async function runAuditoria() {
+  let n; try { n = await api('audit_next'); } catch { return; }
+  if (n.done) { playing(''); return waitDone('auditoria'); }
+  const E = ['✂️', '👥', '🧠'];
   app.innerHTML = `
-    <h2>${n.bonus ? '<span class="lightning">⚡ Rodada Relâmpago (vale dobrado)</span>' : `🕵️ Aprendeu ou colou? ${n.index + 1} de ${n.total}`}</h2>
+    <div class="kicker center">Atividade 5 · Auditoria relâmpago · ${n.index + 1} de ${n.total}</div>
+    <h2 class="center">${n.bonus ? '⚡ Vale dobrado' : 'Qual é o diagnóstico desta IA?'}</h2>
     <div class="timer-bar"><div class="timer-fill" id="bar"></div></div>
     <div class="situation">${esc(n.q)}</div>
-    <div class="two" id="opts"><button class="opt o0" data-i="0"><span class="e">🧠</span>${esc(n.opts[0])}</button><button class="opt o1" data-i="1"><span class="e">📝</span>${esc(n.opts[1])}</button></div>
+    <div class="three" id="opts">${n.opts.map((o, i) => `<button class="opt" data-i="${i}"><span class="e">${E[i]}</span>${esc(o)}</button>`).join('')}</div>
     <div id="fb"></div>`;
   let answered = false;
   const send = async (choice) => {
     if (answered) return; answered = true; clearTimer();
     app.querySelectorAll('#opts button').forEach((b) => b.disabled = true);
     try {
-      const r = await api('colou_answer', { choice });
+      const r = await api('audit_answer', { choice });
       const btns = app.querySelectorAll('#opts button'); btns[r.correctIndex].classList.add('correct'); if (!r.correct && choice >= 0) btns[choice].classList.add('wrong');
       addScore(r.points);
-      document.getElementById('fb').innerHTML = r.correct ? `<div class="fb ok">✅ Isso mesmo! +${r.points} pontos<br><span style="font-weight:400">${esc(r.why)}</span></div>` : `<div class="fb no">${choice < 0 || r.timedOut ? '⏱️ Tempo esgotado!' : '❌ Quase!'}<br><span style="font-weight:400">${esc(r.why)}</span></div>`;
-      setTimeout(() => { if (curStage === 'colou') runColou(); }, 2000);
+      document.getElementById('fb').innerHTML = r.correct ? `<div class="fb ok">✅ Isso! +${r.points} pontos<br><span class="n">${esc(r.why)}</span></div>` : `<div class="fb no">${choice < 0 || r.timedOut ? '⏱️ Tempo esgotado.' : '❌ Não foi dessa vez.'}<br><span class="n">${esc(r.why)}</span></div>`;
+      setTimeout(() => { if (curStage === 'auditoria') runAuditoria(); }, 3200);
     } catch {}
   };
   app.querySelectorAll('#opts button').forEach((b) => b.onclick = () => send(Number(b.dataset.i)));
   const bar = document.getElementById('bar'); const ms = n.remainingMs; const t0 = Date.now();
-  clearTimer(); timer = setInterval(() => { const left = Math.max(0, ms - (Date.now() - t0)); bar.style.width = (left / 10000 * 100) + '%'; if (left <= 0) { clearTimer(); send(-1); } }, 100);
+  clearTimer(); timer = setInterval(() => { const left = Math.max(0, ms - (Date.now() - t0)); bar.style.width = (left / 12000 * 100) + '%'; if (left <= 0) { clearTimer(); send(-1); } }, 100);
 }
 
-// ---------- 6) Conserte a Pokédex ----------
-function showConserte(d) {
-  const ex = [{ pk: '', fundo: '' }, { pk: '', fundo: '' }];
-  const opt = d.pokemon.map((p) => `<option value="${p.pk}">${p.nome} (${p.tipo}, ${p.cor})</option>`).join('');
+// ---------- 6) Plano de dados ----------
+function showPlano(d) {
+  const sel = new Set();
   app.innerHTML = `
-    <h2>🛠️ Conserte a Pokédex</h2>
-    <p class="center">A Pokédex original foi treinada <b>só</b> com fotos assim:</p>
-    <div class="vicio"><span>🔥 Fogo: laranja, no vulcão</span><span>💧 Água: azul, no mar</span><span>🌿 Planta: verde, na grama</span></div>
-    <p class="center">Crie <b>${d.exemplos} fotos novas</b> pro treino que <b>quebrem os atalhos</b> dela. Suas ideias vão pro <b>mural da turma</b>!</p>
-    <div class="builder">${ex.map((_, i) => `
-      <div class="slot"><h3>Exemplo ${i + 1}</h3>
-        <select class="input" data-i="${i}"><option value="">Escolha o Pokémon…</option>${opt}</select>
-        <div class="chips" data-i="${i}">${Object.entries(d.fundos).map(([k, v]) => `<button class="chip" data-f="${k}">${{ vulcao: '🌋', mar: '🌊', grama: '🌱' }[k]} ${v}</button>`).join('')}</div>
-        <div class="pv" id="pv${i}"></div>
-      </div>`).join('')}</div>
-    <input class="input" id="frase" maxlength="160" placeholder="Em uma frase: por que esses exemplos ajudam a IA?">
+    <div class="head"><div class="icon">🗂️</div><div><div class="kicker">Atividade 6 · Criar</div><h2>Plano de dados</h2><p>${esc(d.pergunta)}</p></div></div>
+    <div class="plist" id="pl">${d.opcoes.map((o) => `<button class="pitem" data-id="${o.id}"><span class="ck"></span><span>${esc(o.text)}<span class="why"></span></span></button>`).join('')}</div>
+    <div class="btnrow"><span class="counter" id="cnt">0/${d.escolher} escolhidas</span></div>
+    <textarea id="frase" maxlength="220" placeholder="Justifique em uma ou duas frases: por que essas ações evitam atalhos e falta de representatividade?"></textarea>
     <div id="fb"></div>
-    <button class="btn" id="send">📌 Enviar para o mural</button>`;
-  const prev = (i) => { const e = ex[i]; document.getElementById('pv' + i).innerHTML = e.pk && e.fundo ? foto(e.pk, e.fundo) : '<p class="muted">Escolha o Pokémon e o fundo pra ver a foto.</p>'; };
-  [0, 1].forEach(prev);
-  app.querySelectorAll('select').forEach((s) => s.onchange = () => { ex[s.dataset.i].pk = s.value; prev(Number(s.dataset.i)); });
-  app.querySelectorAll('.builder .chips').forEach((g) => g.querySelectorAll('.chip').forEach((b) => b.onclick = () => {
-    const i = Number(g.dataset.i); ex[i].fundo = b.dataset.f; g.querySelectorAll('.chip').forEach((x) => x.classList.toggle('on', x === b)); prev(i);
-  }));
+    <button class="btn" id="send">📌 Enviar meu plano</button>`;
+  const cnt = document.getElementById('cnt');
+  app.querySelectorAll('.pitem').forEach((b) => b.onclick = () => {
+    if (b.disabled) return; const id = b.dataset.id;
+    if (sel.has(id)) sel.delete(id); else if (sel.size < d.escolher) sel.add(id);
+    b.classList.toggle('on', sel.has(id)); b.querySelector('.ck').textContent = sel.has(id) ? '✓' : ''; cnt.textContent = `${sel.size}/${d.escolher} escolhidas`;
+  });
   document.getElementById('send').onclick = async () => {
     const fb = document.getElementById('fb');
-    if (ex.some((e) => !e.pk || !e.fundo)) { fb.innerHTML = '<div class="fb no">Monte os 2 exemplos (Pokémon + fundo)!</div>'; return; }
+    if (sel.size !== d.escolher) { fb.innerHTML = `<div class="fb no">Escolha exatamente ${d.escolher} ações.</div>`; return; }
+    const frase = document.getElementById('frase').value;
     try {
-      const r = await api('conserte_submit', { ex, frase: document.getElementById('frase').value });
+      const r = await api('plano_submit', { ids: [...sel], frase });
       playing(''); document.getElementById('send').disabled = true; addScore(r.points);
-      fb.innerHTML = `<div class="fb ok">📌 No mural! +${r.points} pontos</div>
-        <div class="fb ${r.quebraCor ? 'ok' : 'no'}" style="margin-top:8px">${r.quebraCor ? '✅ Quebrou o atalho da COR' : '❌ Não quebrou o atalho da cor (dica: um Pokémon com a cor "errada" pro tipo)'}</div>
-        <div class="fb ${r.quebraFundo ? 'ok' : 'no'}" style="margin-top:8px">${r.quebraFundo ? '✅ Quebrou o atalho do FUNDO' : '❌ Não quebrou o atalho do fundo (dica: um Pokémon num fundo "errado" pro tipo)'}</div>`;
-      setTimeout(() => { if (curStage === 'conserte') waitDone('conserte'); }, 6000);
-    } catch (e) { if (!['closed', 'reset'].includes(e.message)) fb.innerHTML = `<div class="fb no">${esc(e.message)}</div>`; }
+      r.feedback.forEach((f) => {
+        const b = app.querySelector(`.pitem[data-id="${f.id}"]`); b.disabled = true;
+        if (f.escolhida) { b.classList.add(f.boa ? 'good' : 'bad'); if (!f.boa) b.querySelector('.why').textContent = f.por; }
+        else if (f.boa) b.classList.add('good');
+      });
+      fb.innerHTML = `<div class="fb ok">📌 Plano enviado! ${r.boas} de ${d.escolher} ações fortes · +${r.points} pontos</div><p class="muted center">Em verde: as ações que realmente protegem a IA. Veja o mural na tela da professora.</p>`;
+      later('plano', 12000);
+    } catch (e) { if (isMsg(e)) fb.innerHTML = `<div class="fb no">${esc(e.message)}</div>`; }
   };
 }
 
@@ -380,12 +415,12 @@ function showConserte(d) {
 async function showFinal() {
   const f = await api('final'); setScore(f.total);
   app.innerHTML = `
-    <img src="/img/espeon.png" alt="" style="height:130px;display:block;margin:0 auto;animation:bob 3s ease-in-out infinite">
-    <h2>🏆 A Pokédex aprendeu!</h2>
+    <div class="icon">🏆</div>
+    <h2 class="center">Aula concluída</h2>
     <div class="big">${f.total} pts</div>
     <p class="center">Você ficou em <strong>${f.rank}º lugar</strong> de ${f.count}.</p>
-    <p class="center" style="color:var(--gold);font-weight:700">A API traz os dados, a IA aprende com eles… e dado ruim gera IA que cola.</p>
-    <p class="muted">Obrigada por participar! 💜</p>`;
+    <div class="fb info center">A API traz os dados. A IA aprende com eles. Por isso, quem escolhe os dados decide o que a IA vai aprender.</div>
+    <p class="muted center">Obrigada por participar! 💜</p>`;
 }
 
 // ---------- polling ----------

@@ -1,51 +1,59 @@
-# A IA adora colar — plataforma da aula (2ª avaliação)
+# Da API à IA · "A IA só aprende o que os dados mostram"
 
-Projeto SEPARADO da aula de API (link próprio). Mesmo jeito de usar.
+Plataforma da 2ª avaliação (Educação em Computação, Unesp 2026). Aula online de ~24 min com 6 atividades, ranking coletivo e etapas liberadas pela professora.
 
-| Página | Quem usa | O que faz |
-|---|---|---|
-| `/` | alunos | apelido, etapas liberadas por você, 6 atividades, pontuação, ranking na espera |
-| `/professora` | você | slides + 🔓 Liberar + cronômetro (+30s / Encerrar) + rankings + painéis + mural |
+- Alunos: `/` (entram com apelido)
+- Professora: `/professora` (senha da variável `HOST_PASSWORD`)
 
-## 0. Ver no computador
-Na pasta, terminal do VS Code: `npm run dev` → `http://localhost:3000` (alunos) e `http://localhost:3000/professora` (senha `teste`).
-Vários alunos: janelas anônimas ou celular na mesma rede. Dados ficam na memória e somem ao parar (Ctrl+C).
+## Rodar no computador
 
-## 1. Publicar na Vercel (projeto NOVO)
 ```
-vercel          ← "Link to existing project?" N · nome: aula-ia-atalhos (minúsculo)
+npm run dev
 ```
-**Banco:** use o MESMO Upstash da aula de API. Vercel → Storage → `upstash-kv-…` → **Connect Project** → escolha o projeto novo.
-As chaves deste projeto começam com `ia:`, então não misturam com a aula de API.
-**Senha:** Settings → Environment Variables → `HOST_PASSWORD`.
-```
-vercel --prod
-```
-Abra numa janela anônima. Se pedir login da Vercel: Settings → Deployment Protection → Vercel Authentication → Disabled.
+Abra http://localhost:3000 (alunos) e http://localhost:3000/professora (senha: `teste`). Os dados ficam na memória.
 
-## 2. Teste de carga (véspera, UMA vez, nunca durante uma aula — ele zera a sala)
+## Publicar na Vercel
+
+1. Importe o repositório como **projeto novo** na Vercel (Add New → Project).
+2. Em **Storage**, conecte o banco Upstash (pode ser o mesmo das outras aulas: esta usa chaves `ia2:` e não mistura nada). Clique em *Connect Project*.
+3. Em **Settings → Environment Variables**, crie `HOST_PASSWORD` com uma senha só sua.
+4. Faça um novo deploy (Deployments → Redeploy).
+5. Em **Settings → Deployment Protection**, desative a proteção para os colegas entrarem sem login.
+
+## Teste de carga (NUNCA durante a aula: ele zera a sala)
+
 PowerShell:
 ```
-$env:BASE_URL="https://SEU-SITE.vercel.app"; $env:HOST_PASSWORD="SUA_SENHA"; $env:PLAYERS="40"; $env:SPEED="0.3"; node scripts/loadtest.js
+$env:BASE_URL="https://SEU-SITE.vercel.app"; $env:HOST_PASSWORD="SUA_SENHA"; $env:PLAYERS="40"; $env:SPEED="0.3"; npm run loadtest
 ```
-Tem que dar "concluíram=40" nas 5 etapas e ✅ PASSOU. Depois: ⚙ → Reiniciar aula.
+Depois, no painel: ⚙ → Reiniciar aula.
 
-## 3. Ordem da aula (~21 min)
-1 Abertura "Da API à IA" → 2 Objetivos de Bloom (+ endereço pra entrar) → 3 **Mistério** (3:00) → ranking + painel →
-4 **Explicação** (fecha a etapa sozinha) → 5 **Pesquisa** no artigo (3:00) → 6 **Treinador** (3:00) → ranking + painel →
-7 **Aprendeu ou colou?** (1:30) → ranking → 8 **Conserte** (2:30) → **mural** ao vivo → ranking final → 9 Fechamento.
-Tempos editáveis em `lib/content.js` → `STAGE_TIMERS`.
+## Ordem da aula (~24 min)
 
-## 4. Como cada atividade funciona
-- **Mistério:** 8 fotos com o palpite da IA; botão "ver ficha" mostra o tipo real. Aluno marca acertou/errou e escolhe o que a IA olhava. Resposta: **cor E fundo**.
-- **Pesquisa:** Geirhos et al. (2020), *Nature Machine Intelligence* — link aberto do arXiv. Respostas: grama · marca/ficha do hospital · estudantes (ou ratos).
-- **Treinador:** escolhe 6 de 12 fotos; a IA faz prova com 4 fotos novas. Se cor ou fundo explicam sozinhos os exemplos, ela cola. Exemplo de solução 4/4: Charmander vulcão, Charmander grama, Squirtle mar, Magikarp mar, Squirtle grama, Bulbasaur grama.
-- **Aprendeu ou colou?:** 6 situações, 10 s cada, a última vale dobrado.
-- **Conserte:** 2 fotos novas (Pokémon + fundo) + frase. Pontua se quebrar o atalho da cor e/ou do fundo. Vai pro mural da sua tela.
+| Tela do painel | Tempo |
+| --- | --- |
+| 1 Abertura "Da API à IA" | 0:45 |
+| 2 Objetivos (Bloom) + link | 0:45 |
+| 3 Detetive de dados → Liberar | 3:30 |
+| Ranking + painel | 0:30 |
+| 4 Explicação (2 telas, fecha a etapa anterior) | 3:00 |
+| 5 Pesquisa no artigo → Liberar | 4:00 |
+| Mural da pergunta norteadora | 0:30 |
+| 6 Treinador (fecha a pesquisa) → Liberar | 4:00 |
+| Ranking + painel | 0:30 |
+| 7 Auditoria relâmpago → Liberar | 2:00 |
+| Ranking | 0:15 |
+| 8 Plano de dados → Liberar | 2:30 |
+| Mural do plano | 0:45 |
+| Ranking final | 0:15 |
+| 9 Fechamento | 1:00 |
 
-## 5. Editar
-Tudo em `lib/content.js` (fotos, palpites, perguntas, situações, pontos, tempos). Imagens em `public/img/`.
+## Onde mudar as coisas
 
-## 6. Testado
-✅ 40 alunos simultâneos (0 erros) · fluxo completo no Chrome (computador 1366×768 e celular 390 px) · telas da professora conferidas.
-⚠️ Não testado: Vercel/Upstash de verdade (rode o teste de carga) e outros navegadores.
+Tudo fica em `lib/content.js`: fotos, perguntas, casos, opções, pontos e tempos (`STAGE_TIMERS`, em milissegundos).
+
+## Créditos
+
+- Artigo: Silva DLF et al. An Bras Dermatol. 2025;100(5):501164 (CC BY), em `public/artigo.pdf`.
+- Fotos de cães e lobos: amostras do ImageNet (Deng et al., 2009), uso educacional. Os mapas de calor são simulados para a aula.
+- Imagens de Pokémon: PokéAPI (uso educacional, sem fins comerciais).

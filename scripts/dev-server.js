@@ -3,7 +3,7 @@ process.env.HOST_PASSWORD = process.env.HOST_PASSWORD || 'teste';
 const http = require('http'); const fs = require('fs'); const path = require('path');
 const PUBLIC = path.join(__dirname, '..', 'public');
 const routes = { '/api/state': require('../api/state.js'), '/api/play': require('../api/play.js'), '/api/host': require('../api/host.js') };
-const types = { '.html': 'text/html; charset=utf-8', '.png': 'image/png', '.jpg': 'image/jpeg', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json' };
+const types = { '.html': 'text/html; charset=utf-8', '.png': 'image/png', '.jpg': 'image/jpeg', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.pdf': 'application/pdf' };
 http.createServer(async (req, res) => {
   const url = new URL(req.url, 'http://x');
   const h = routes[url.pathname];

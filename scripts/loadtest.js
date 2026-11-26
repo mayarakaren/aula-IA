@@ -31,34 +31,35 @@ async function player(i) {
   const waitFor = async (st) => { while (cur !== st) await sleep(80); };
   const play = (action, extra = {}) => call('/api/play', { action, id, ...extra });
 
-  // 1) Mistério
-  await waitFor('misterio'); const m = await play('enter', { stage: 'misterio' });
+  // 1) Detetive
+  await waitFor('detetive'); const d = await play('enter', { stage: 'detetive' });
   await sleep(rnd(5000, 20000) * SPEED);
-  const marks = m.cards.map((c) => (Math.random() < 0.85 ? c.guess === c.real : !(c.guess === c.real)));
-  const pistas = pick([['cor', 'fundo'], ['cor', 'fundo'], ['cor'], ['fundo'], ['forma'], ['cor', 'fundo', 'tamanho']]);
-  await play('misterio_submit', { marks, pistas });
+  const certo = d.fotos.map((f) => f.ia === f.real); const olh = ['fundo', 'animal', 'fundo', 'fundo', 'animal', 'fundo'];
+  await play('detetive_submit', { marks: certo.map((c) => (Math.random() < 0.85 ? c : !c)), olhou: olh.map((o) => (Math.random() < 0.8 ? o : o === 'fundo' ? 'animal' : 'fundo')), regra: Math.random() < 0.7 ? 0 : pick([1, 2, 3]) });
   // 3) Pesquisa
   await waitFor('pesquisa'); await play('enter', { stage: 'pesquisa' });
-  const ans = ['grass', 'hospital token', 'estudantes'];
-  for (let q = 0; q < 3; q++) { await sleep(rnd(4000, 12000) * SPEED); if (Math.random() < 0.2) await play('pesquisa_answer', { qi: q, text: 'nao sei' }); await play('pesquisa_answer', { qi: q, text: ans[q] }); }
+  const ans = ['pele branca e asiatica', '10.000', 'boa iluminacao'];
+  for (let q = 0; q < 3; q++) { await sleep(rnd(3000, 9000) * SPEED); if (Math.random() < 0.2) await play('pesquisa_answer', { qi: q, text: 'nao sei' }); await play('pesquisa_answer', { qi: q, text: ans[q] }); }
+  await play('pesquisa_norteadora', { text: 'A IA pode errar em peles negras e pardas, que quase nao estavam nos dados. Eu exigiria fotos de brasileiros.' });
   // 4) Treinador
   await waitFor('treino'); const t = await play('enter', { stage: 'treino' });
   const ids = t.pool.map((c) => c.id);
-  const bom = ['t1', 't4', 't5', 't7', 't8', 't9'];
+  const bom = ['t1', 't2', 't4', 't7', 't8', 't10'];
   for (let k = 0; k < 3; k++) {
     await sleep(rnd(4000, 12000) * SPEED);
     const escolha = k === 2 || Math.random() < 0.3 ? bom : [...ids].sort(() => Math.random() - 0.5).slice(0, 6);
-    const r = await play('treino_train', { ids: escolha });
+    const r = await play('treino_train', { ids: escolha, previsao: Math.floor(Math.random() * 7) });
     if (r.done) break;
   }
-  // 5) Aprendeu ou colou?
-  await waitFor('colou'); const c = await play('enter', { stage: 'colou' });
-  for (let q = 0; q < c.total; q++) { const n = await play('colou_next'); if (n.done) break; await sleep(rnd(1000, 6000) * SPEED); await play('colou_answer', { choice: Math.random() < 0.7 ? [0, 1, 1, 0, 1, 1][q] : 1 - [0, 1, 1, 0, 1, 1][q] }); }
-  // 6) Conserte
-  await waitFor('conserte'); await play('enter', { stage: 'conserte' });
+  // 5) Auditoria
+  await waitFor('auditoria'); const c = await play('enter', { stage: 'auditoria' });
+  const gab = [0, 1, 0, 2, 1, 0];
+  for (let q = 0; q < c.total; q++) { const n = await play('audit_next'); if (n.done) break; await sleep(rnd(1000, 7000) * SPEED); await play('audit_answer', { choice: Math.random() < 0.7 ? gab[q] : (gab[q] + 1) % 3 }); }
+  // 6) Plano
+  await waitFor('plano'); await play('enter', { stage: 'plano' });
   await sleep(rnd(5000, 15000) * SPEED);
-  const pks = ['charmander', 'magikarp', 'squirtle', 'oddish', 'ponyta', 'bulbasaur']; const fs = ['vulcao', 'mar', 'grama'];
-  await play('conserte_submit', { ex: [{ pk: pick(pks), fundo: pick(fs) }, { pk: pick(pks), fundo: pick(fs) }], frase: Math.random() < 0.8 ? 'Mostra cores e fundos diferentes pra IA' : '' });
+  const ops = ['p1', 'p2', 'p3', 'p4', 'p5', 'p6', 'p7', 'p8', 'p9'];
+  await play('plano_submit', { ids: Math.random() < 0.5 ? ['p1', 'p3', 'p7', 'p9'] : [...ops].sort(() => Math.random() - 0.5).slice(0, 4), frase: Math.random() < 0.8 ? 'Dados variados de brasileiros evitam atalhos e erros' : '' });
   await waitFor('final'); const f = await play('final');
   clearInterval(poll); return f;
 }
@@ -75,7 +76,7 @@ async function main() {
     await host('setStage', { stage: 'closed' }); await sleep(600);
   };
   await sleep(2500 * SPEED + 2500);
-  await stageWait('misterio', 60000); await stageWait('pesquisa', 90000); await stageWait('treino', 90000); await stageWait('colou', 90000); await stageWait('conserte', 60000);
+  await stageWait('detetive', 60000); await stageWait('pesquisa', 90000); await stageWait('treino', 90000); await stageWait('auditoria', 90000); await stageWait('plano', 60000);
   await host('setStage', { stage: 'final' });
   const finals = (await Promise.all(players)).filter(Boolean);
   const b = await host('board', { top: 5 });
@@ -85,7 +86,7 @@ async function main() {
   console.log(`latência ms: mediana ${p(0.5)} | p95 ${p(0.95)} | máx ${p(1)}`);
   console.log(`alunos que chegaram ao final: ${finals.length}/${N}`);
   console.log('top 5:', b.top.map((x) => `${x.nick} ${x.total}`).join(' · '));
-  console.log('painel mistério:', JSON.stringify(b.misterio), '| treino:', JSON.stringify(b.treino), '| mural:', b.mural.length, 'ideias');
+  console.log('painel detetive:', JSON.stringify(b.detetive.regraCount.map((r) => r.n)), '| treino:', JSON.stringify(b.treino), '| norteadora:', b.respostas.length, '| plano:', b.plano.enviaram);
   console.log(errors === 0 && finals.length === N ? '\n✅ PASSOU' : '\n⚠️ ATENÇÃO: revise os erros acima');
   process.exit(0);
 }
